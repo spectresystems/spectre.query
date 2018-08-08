@@ -33,7 +33,7 @@ This project is currently under active development and might not be ready for pr
 ### 1. Install the NuGet package
 
 ```
-PM> Install-Package Spectre.Query.AspNetCore
+PM> Install-Package Spectre.Query
 ```
 
 ### 2. Create the query provider
