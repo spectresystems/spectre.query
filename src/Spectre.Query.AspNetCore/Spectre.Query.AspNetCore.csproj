@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Product>Spectre.Query.AspNetCore</Product>
+    <Description>Simplified safe querying for Entity Framework Core. </Description>
+    <Company>Spectre Systems AB</Company>
+    <Copyright>Spectre Systems AB</Copyright>
+    <Authors>Patrik Svensson</Authors>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/spectresystems/spectre.query/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/spectresystems/spectre.query</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/spectresystems/graphics/master/png/logo-medium.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/spectresystems/spectre.query</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Spectre.Query\Spectre.Query.csproj" />
+  </ItemGroup>
+
+  <!-- Static analysis -->
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\Spectre.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" Link="Properties\stylecop.json" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta008">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Analyzers" Version="1.9.0">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

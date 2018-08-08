@@ -1,0 +1,45 @@
+﻿@model SearchResultModel<MovieProjection>
+
+<div class="panel panel-info">
+    <div class="panel-heading"><b>Query <code>View_Movie</code> view (via EF query type)</b></div>
+    <div class="panel-body">
+        <form method="post" class="form" asp-controller="Home" asp-action="SearchProjection">
+            <div class="form-group">
+                <input asp-for="Query" class="form-control" placeholder="NOT Seen AND Score > 60 AND Genre = 'Drama'">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading"><b>Results</b> (sorted by score)</div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Year</th>
+                <th>Score (0-100)</th>
+                <th>Genre</th>
+                <th>Seen</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var movie in Model.Movies)
+            {
+                <tr>
+                    <td>@movie.MovieId</td>
+                    <td>@movie.Name</td>
+                    <td>@movie.ReleasedAt</td>
+                    <td>@movie.Rating</td>
+                    <td>@movie.Genre</td>
+                    <td>@(movie.Seen ? "Yes" : "No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
