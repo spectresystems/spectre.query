@@ -2,9 +2,9 @@
 
 namespace Spectre.Query.Internal.Expressions.Rewriting
 {
-    internal static class BooleanRewriter<TEntity>
+    internal static class BooleanRewriter
     {
-        public static Expression Rewrite(Expression expression)
+        public static QueryExpression Rewrite(QueryExpression expression)
         {
             if (expression == null)
             {
@@ -22,9 +22,9 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
             return expression;
         }
 
-        public sealed class Visitor : ExpressionRewriter<object>
+        public sealed class Visitor : QueryExpressionRewriter<object>
         {
-            protected override Expression VisitAnd(object context, AndExpression expression)
+            protected override QueryExpression VisitAnd(object context, AndExpression expression)
             {
                 if (expression.Left is PropertyExpression)
                 {
@@ -44,7 +44,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                 return base.VisitAnd(context, expression);
             }
 
-            protected override Expression VisitOr(object context, OrExpression expression)
+            protected override QueryExpression VisitOr(object context, OrExpression expression)
             {
                 if (expression.Left is PropertyExpression property)
                 {
@@ -64,7 +64,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                 return base.VisitOr(context, expression);
             }
 
-            protected override Expression VisitNot(object context, NotExpression expression)
+            protected override QueryExpression VisitNot(object context, NotExpression expression)
             {
                 if (expression.Expression is PropertyExpression)
                 {

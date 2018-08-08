@@ -2,12 +2,12 @@
 {
     internal sealed class AndExpression : BinaryExpression
     {
-        public AndExpression(Expression left, Expression right)
+        public AndExpression(QueryExpression left, QueryExpression right)
             : base(left, right)
         {
         }
 
-        public override TResult Accept<TContext, TResult>(IExpressionVisitor<TContext, TResult> visitor, TContext context)
+        public override TResult Accept<TContext, TResult>(IQueryExpressionVisitor<TContext, TResult> visitor, TContext context)
         {
             return visitor.VisitAnd(context, this);
         }

@@ -2,8 +2,6 @@
 {
     internal enum RelationalOperator
     {
-        Is,
-        IsNot,
         EqualTo,
         NotEqualTo,
         GreaterThan,

@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Query.Example", "..
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Query.Example.AspNetCore", "..\examples\Spectre.Query.Example.AspNetCore\Spectre.Query.Example.AspNetCore.csproj", "{EE482AA8-7CA2-4FB3-B217-80F787D7F93B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8FCD020E-3638-415C-914C-B108E3E4A798}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{1E919705-AD11-43F4-8AAE-12CFB989E76F} = {8FCD020E-3638-415C-914C-B108E3E4A798}
 		{5F3C0755-E533-4CF3-8482-094E8E7DC0E2} = {2267730D-CA24-4A6D-B829-35108A4045EF}
 		{EE482AA8-7CA2-4FB3-B217-80F787D7F93B} = {2267730D-CA24-4A6D-B829-35108A4045EF}
 	EndGlobalSection
