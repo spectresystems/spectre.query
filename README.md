@@ -1,5 +1,7 @@
 # Spectre.Query
 
+[![NuGet](https://img.shields.io/nuget/v/Spectre.Query.svg)](https://www.nuget.org/packages/Spectre.Query) ![Build Status](https://ci.appveyor.com/api/projects/status/8yx4dod2p6nep3l7/branch/develop?svg=true)
+
 Spectre.Query is a library for doing simplified (safe) querying in Entity Framework Core. Perfect when you want to let end users or APIs search with a SQL-esque language without actually letting them execute any SQL directly (which you never should).
 
 ```
