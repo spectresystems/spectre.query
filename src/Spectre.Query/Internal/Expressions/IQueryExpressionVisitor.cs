@@ -2,7 +2,7 @@
 
 namespace Spectre.Query.Internal.Expressions
 {
-    internal interface IExpressionVisitor<in TContext, out TResult>
+    internal interface IQueryExpressionVisitor<in TContext, out TResult>
     {
         TResult VisitAnd(TContext context, AndExpression expression);
         TResult VisitConstant(TContext context, ConstantExpression expression);
@@ -11,5 +11,6 @@ namespace Spectre.Query.Internal.Expressions
         TResult VisitRelational(TContext context, RelationalExpression expression);
         TResult VisitScope(TContext context, ScopeExpression expression);
         TResult VisitProperty(TContext context, PropertyExpression expression);
+        TResult VisitConversion(TContext context, ConvertExpression expression);
     }
 }

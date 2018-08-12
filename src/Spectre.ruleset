@@ -40,4 +40,7 @@
     <Rule Id="RCS1175" Action="Warning" />
     <Rule Id="RCS1194" Action="None" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
+    <Rule Id="CA1812" Action="None" />
+  </Rules>
 </RuleSet>

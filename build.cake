@@ -23,7 +23,7 @@ Setup<BuildData>(context =>
     var server = BuildServer.Initialize(context);
     var versioning = BuildVersion.Calculate(context, server);
 
-    context.Information("Building version {0}", versioning.Version);
+    context.Information("Version: {0}", versioning.Version);
 
     return new BuildData {
         Configuration = context.Argument<string>("configuration", "Release"),
@@ -60,6 +60,7 @@ Task("Build")
         Verbosity = DotNetCoreVerbosity.Minimal,
         NoRestore = true,
         MSBuildSettings = new DotNetCoreMSBuildSettings()
+            .TreatAllWarningsAs(MSBuildTreatAllWarningsAs.Error)
             .WithProperty("Version", data.Versioning.SemVersion)
             .WithProperty("AssemblyVersion", data.Versioning.Version)
             .WithProperty("FileVersion", data.Versioning.Version)

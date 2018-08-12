@@ -2,12 +2,12 @@
 {
     internal sealed class NotExpression : UnaryExpression
     {
-        public NotExpression(Expression expression)
+        public NotExpression(QueryExpression expression)
             : base(expression)
         {
         }
 
-        public override TResult Accept<TContext, TResult>(IExpressionVisitor<TContext, TResult> visitor, TContext context)
+        public override TResult Accept<TContext, TResult>(IQueryExpressionVisitor<TContext, TResult> visitor, TContext context)
         {
             return visitor.VisitNot(context, this);
         }

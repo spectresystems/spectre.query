@@ -1,11 +1,11 @@
 ﻿namespace Spectre.Query.Internal.Expressions.Ast
 {
-    internal abstract class BinaryExpression : Expression
+    internal abstract class BinaryExpression : QueryExpression
     {
-        public Expression Left { get; }
-        public Expression Right { get; }
+        public QueryExpression Left { get; }
+        public QueryExpression Right { get; }
 
-        protected BinaryExpression(Expression left, Expression right)
+        protected BinaryExpression(QueryExpression left, QueryExpression right)
         {
             Left = left;
             Right = right;

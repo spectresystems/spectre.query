@@ -1,10 +1,10 @@
 ﻿namespace Spectre.Query.Internal.Expressions.Ast
 {
-    internal abstract class UnaryExpression : Expression
+    internal abstract class UnaryExpression : QueryExpression
     {
-        public Expression Expression { get; }
+        public QueryExpression Expression { get; }
 
-        protected UnaryExpression(Expression expression)
+        protected UnaryExpression(QueryExpression expression)
         {
             Expression = expression;
         }

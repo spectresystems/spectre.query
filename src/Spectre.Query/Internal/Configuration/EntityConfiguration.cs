@@ -19,5 +19,10 @@ namespace Spectre.Query.Internal.Configuration
             IsQueryType = entityType.IsQueryType;
             Mappings = new List<QueryProperty>();
         }
+
+        public QueryProperty GetProperty(string name)
+        {
+            return Mappings.Find(m => m.Alias.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

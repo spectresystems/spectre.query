@@ -2,6 +2,8 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Spectre.Query.Internal.Configuration;
+using Spectre.Query.Internal.Expressions;
+using Spectre.Query.Internal.Expressions.Rewriting;
 
 namespace Spectre.Query.Internal
 {
@@ -15,12 +17,6 @@ namespace Spectre.Query.Internal
             _configuration = configuration;
         }
 
-        public string ToSql<TEntity>(string query)
-            where TEntity : class
-        {
-            return QueryTranslator<TContext, TEntity>.ToSql(_configuration, query);
-        }
-
         public IQueryable<TEntity> Query<TEntity>(TContext context, string query)
             where TEntity : class
         {
@@ -29,11 +25,16 @@ namespace Spectre.Query.Internal
                 throw new InvalidOperationException("Entity has not been configured.");
             }
 
-            var sql = ToSql<TEntity>(query);
+            // Parse the expression.
+            var expression = QueryExpressionParser.Parse(entityConfiguration, query);
+            expression = BooleanRewriter.Rewrite(expression);
+            expression = NullableRewriter.Rewrite(expression);
 
+            // Translate the expression.
+            var result = QueryTranslator<TContext, TEntity>.Translate(expression);
             return entityConfiguration.IsQueryType
-                ? context.Query<TEntity>().FromSql(sql)
-                : context.Set<TEntity>().FromSql(sql);
+                ? context.Query<TEntity>().Where(result)
+                : context.Set<TEntity>().Where(result);
         }
     }
 }

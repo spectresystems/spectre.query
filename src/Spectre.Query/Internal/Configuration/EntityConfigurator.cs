@@ -30,20 +30,18 @@ namespace Spectre.Query.Internal.Configuration
                 throw new InvalidOperationException("Expected member expression");
             }
 
-            var info = GetPropertyInfo(member);
+            var property = GetPropertyInfo(member);
 
-            var property = _entityType.FindProperty(info);
-            if (property == null)
+            var entityProperty = _entityType.FindProperty(property);
+            if (entityProperty == null)
             {
-                throw new InvalidOperationException($"The property '{typeof(TEntity).Name}.{info.Name}' is not mapped to entity.");
+                throw new InvalidOperationException($"The property '{typeof(TEntity).Name}.{property.Name}' is not mapped to entity.");
             }
 
             Configuration.Mappings.Add(new QueryProperty
             {
-                Name = name ?? info.Name,
-                Type = info.PropertyType,
-                TableName = Configuration.TableName,
-                ColumnName = property.Relational().ColumnName
+                Alias = name ?? property.Name,
+                PropertyInfo = property
             });
         }
 
