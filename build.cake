@@ -120,6 +120,28 @@ Task("Upload-AppVeyor-Artifacts")
     }
 });
 
+Task("Create-Release")
+    .WithCriteria<BuildData>((context, data) => !data.Server.IsRunningOnAppVeyor, "Not running on AppVeyor")
+    .WithCriteria<BuildData>((context, data) => !data.Server.IsPullRequest, "Won't publish pull requests")
+    .WithCriteria<BuildData>((context, data) => data.Server.IsMasterBranch, "Not on master branch")
+    .Does<BuildData>((context, data) =>
+{
+    var username = context.Argument<string>("githubusername", null);
+    var password = context.Argument<string>("githubpassword", null);
+
+    if(string.IsNullOrWhiteSpace(username) ||
+       string.IsNullOrWhiteSpace(password)) 
+    {
+        throw new InvalidOperationException("No GitHub credentials provided.");
+    }
+
+    GitReleaseManagerCreate(username, password, "spectresystems", "spectre.query", new GitReleaseManagerCreateSettings {
+        Milestone = data.Versioning.Milestone,
+        Name = data.Versioning.Milestone,
+        TargetCommitish = "master"
+    });
+});
+
 Task("Publish-To-NuGet")
     .IsDependentOn("Package")
     .WithCriteria<BuildData>((context, data) => data.Server.IsRunningOnAppVeyor, "Not running on AppVeyor")
