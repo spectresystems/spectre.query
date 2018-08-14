@@ -28,8 +28,6 @@ This project is currently under active development and might not be ready for pr
 
 * There's currently no support for non-integer numbers.
 
-* Generates SQL from query expressions. The query translator should be rewritten to generate a `System.Linq.Expression`.
-
 ## Usage
 
 ### 1. Install the NuGet package
