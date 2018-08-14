@@ -5,6 +5,7 @@ public sealed class BuildServer
     public bool IsPullRequest { get; set; }
     public bool IsDevelopBranch { get; set; }
     public bool IsMasterBranch { get; set; }
+    public bool IsReleaseBranch { get; set; }
     public bool IsTaggedBuild { get; set; }
     public bool IsMaintenanceBuild { get; set; }
 
@@ -24,6 +25,7 @@ public sealed class BuildServer
             IsPullRequest = buildSystem.AppVeyor.Environment.PullRequest.IsPullRequest,
             IsDevelopBranch = "develop".Equals(branchName, StringComparison.OrdinalIgnoreCase),
             IsMasterBranch = "master".Equals(branchName, StringComparison.OrdinalIgnoreCase),
+            IsReleaseBranch = branchName.StartsWith("release", StringComparison.OrdinalIgnoreCase),
             IsTaggedBuild = IsBuildTagged(buildSystem),
             IsMaintenanceBuild = isMaintenanceBuild
         };
