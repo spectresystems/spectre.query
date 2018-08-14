@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Spectre.Query.Internal.Expressions.Tokenization
@@ -165,7 +166,7 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
         private Token ReadSymbol(int position)
         {
             var character = _buffer.Read();
-            var symbol = character.ToString();
+            var symbol = character.ToString(CultureInfo.InvariantCulture);
 
             if (_buffer.CanRead)
             {

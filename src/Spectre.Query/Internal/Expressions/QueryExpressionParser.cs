@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Globalization;
+using Spectre.Query.Internal.Configuration;
 using Spectre.Query.Internal.Expressions.Ast;
 using Spectre.Query.Internal.Expressions.Tokenization;
 
 namespace Spectre.Query.Internal.Expressions
 {
-    internal static class ExpressionParser
+    internal static class QueryExpressionParser
     {
-        public static Expression Parse(string expression)
+        public static QueryExpression Parse(EntityConfiguration configuration, string expression)
         {
             if (string.IsNullOrWhiteSpace(expression))
             {
@@ -16,49 +18,49 @@ namespace Spectre.Query.Internal.Expressions
             var tokenizer = new Tokenizer(expression);
             tokenizer.MoveNext();
 
-            return Parse(tokenizer);
+            return Parse(configuration, tokenizer);
         }
 
-        private static Expression Parse(Tokenizer tokenizer)
+        private static QueryExpression Parse(EntityConfiguration configuration, Tokenizer tokenizer)
         {
-            return ParseOr(tokenizer);
+            return ParseOr(configuration, tokenizer);
         }
 
-        private static Expression ParseOr(Tokenizer tokenizer)
+        private static QueryExpression ParseOr(EntityConfiguration configuration, Tokenizer tokenizer)
         {
             if (tokenizer.Current == null)
             {
                 throw new InvalidOperationException("Invalid expression!");
             }
 
-            var expression = ParseAnd(tokenizer);
+            var expression = ParseAnd(configuration, tokenizer);
             while (tokenizer.Current?.Type == TokenType.Or)
             {
                 tokenizer.MoveNext();
-                expression = new OrExpression(expression, ParseAnd(tokenizer));
+                expression = new OrExpression(expression, ParseAnd(configuration, tokenizer));
             }
 
             return expression;
         }
 
-        private static Expression ParseAnd(Tokenizer tokenizer)
+        private static QueryExpression ParseAnd(EntityConfiguration configuration, Tokenizer tokenizer)
         {
             if (tokenizer.Current == null)
             {
                 throw new InvalidOperationException("Invalid expression!");
             }
 
-            var expression = ParsePredicate(tokenizer);
+            var expression = ParsePredicate(configuration, tokenizer);
             while (tokenizer.Current?.Type == TokenType.And)
             {
                 tokenizer.MoveNext();
-                expression = new AndExpression(expression, ParsePredicate(tokenizer));
+                expression = new AndExpression(expression, ParsePredicate(configuration, tokenizer));
             }
 
             return expression;
         }
 
-        private static Expression ParsePredicate(Tokenizer tokenizer)
+        private static QueryExpression ParsePredicate(EntityConfiguration configuration, Tokenizer tokenizer)
         {
             if (tokenizer.Current == null)
             {
@@ -68,13 +70,13 @@ namespace Spectre.Query.Internal.Expressions
             if (tokenizer.Current.Type == TokenType.Not)
             {
                 tokenizer.MoveNext();
-                return new NotExpression(ParsePredicate(tokenizer));
+                return new NotExpression(ParsePredicate(configuration, tokenizer));
             }
 
-            return ParseRelation(tokenizer);
+            return ParseRelation(configuration, tokenizer);
         }
 
-        private static Expression ParseRelation(Tokenizer tokenizer)
+        private static QueryExpression ParseRelation(EntityConfiguration configuration, Tokenizer tokenizer)
         {
             if (tokenizer.Current == null)
             {
@@ -82,7 +84,7 @@ namespace Spectre.Query.Internal.Expressions
             }
 
             // Parse the left side literal in the relation.
-            var expression = ParseLiteral(tokenizer);
+            var expression = ParseLiteral(configuration, tokenizer);
 
             if (tokenizer.Current?.IsRelationalOperator() == true)
             {
@@ -90,7 +92,7 @@ namespace Spectre.Query.Internal.Expressions
                 tokenizer.MoveNext(); // Consume operator.
 
                 // Parse the right side literal in the relation.
-                var right = ParseLiteral(tokenizer);
+                var right = ParseLiteral(configuration, tokenizer);
 
                 return new RelationalExpression(
                     expression,
@@ -101,16 +103,16 @@ namespace Spectre.Query.Internal.Expressions
             return expression;
         }
 
-        private static Expression ParseLiteral(Tokenizer tokenizer)
+        private static QueryExpression ParseLiteral(EntityConfiguration configuration, Tokenizer tokenizer)
         {
-            var result = (Expression)null;
+            var result = (QueryExpression)null;
             if (tokenizer.Current != null)
             {
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (tokenizer.Current.Type)
                 {
                     case TokenType.Integer:
-                        result = ParseConstant(tokenizer, value => int.Parse(value));
+                        result = ParseConstant(tokenizer, value => int.Parse(value, CultureInfo.InvariantCulture));
                         break;
                     case TokenType.String:
                         result = ParseConstant(tokenizer, value => value);
@@ -125,10 +127,10 @@ namespace Spectre.Query.Internal.Expressions
                         result = ParseConstant(tokenizer, _ => null);
                         break;
                     case TokenType.OpeningParenthesis:
-                        result = ParseScope(tokenizer);
+                        result = ParseScope(configuration, tokenizer);
                         break;
                     case TokenType.Word:
-                        result = ParseProperty(tokenizer);
+                        result = ParseProperty(configuration, tokenizer);
                         break;
                     default:
                         throw new InvalidOperationException($"Could not parse literal expression ({tokenizer.Current.Type}).");
@@ -143,14 +145,20 @@ namespace Spectre.Query.Internal.Expressions
             throw new InvalidOperationException("Unexpected end of expression.");
         }
 
-        private static Expression ParseProperty(Tokenizer tokenizer)
+        private static QueryExpression ParseProperty(EntityConfiguration configuration, Tokenizer tokenizer)
         {
             var name = tokenizer.Consume(TokenType.Word).Value;
 
-            return new PropertyExpression(name);
+            var property = configuration.GetProperty(name);
+            if (property == null)
+            {
+                throw new InvalidOperationException("Could not find property.");
+            }
+
+            return new PropertyExpression(property.PropertyInfo);
         }
 
-        private static Expression ParseConstant(Tokenizer tokenizer, Func<string, object> converter)
+        private static QueryExpression ParseConstant(Tokenizer tokenizer, Func<string, object> converter)
         {
             var expression = new ConstantExpression(converter(tokenizer.Current.Value));
             tokenizer.MoveNext(); // Move past constant.
@@ -158,10 +166,10 @@ namespace Spectre.Query.Internal.Expressions
             return expression;
         }
 
-        private static Expression ParseScope(Tokenizer tokenizer)
+        private static QueryExpression ParseScope(EntityConfiguration configuration, Tokenizer tokenizer)
         {
             tokenizer.Consume(TokenType.OpeningParenthesis);
-            var expression = Parse(tokenizer);
+            var expression = Parse(configuration, tokenizer);
             tokenizer.Consume(TokenType.ClosingParenthesis);
 
             return new ScopeExpression(expression);

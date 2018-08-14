@@ -46,20 +46,6 @@ namespace Spectre.Query.Tests.Fixtures
             }
         }
 
-        public string ToSql<TEntity>(string query)
-            where TEntity : class
-        {
-            if (_provider == null)
-            {
-                throw new InvalidOperationException("Query provider fixture has not been initialized.");
-            }
-
-            using (var context = new DataContext(_builder.Options))
-            {
-                return _provider.ToSql<TEntity>(query);
-            }
-        }
-
         public List<TEntity> Query<TEntity>(string query)
             where TEntity : class
         {

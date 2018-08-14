@@ -5,6 +5,7 @@ public class BuildVersion
 {
     public string Version { get; private set; }
     public string SemVersion { get; private set; }
+    public string Milestone { get; private set; }
 
     public static BuildVersion Calculate(ICakeContext context, BuildServer server)
     {
@@ -13,21 +14,23 @@ public class BuildVersion
             throw new ArgumentNullException("context");
         }
 
-        string version = context.Argument<string>("ver", null);
-        string semVersion = version;
+        var version = context.Argument<string>("ver", null);
+        var semVersion = version;
+        var milestone = $"v{version}";
         
         if (version != null) 
         {
             return new BuildVersion
             {
                 Version = version,
-                SemVersion = semVersion
+                SemVersion = semVersion,
+                Milestone = milestone
             };
         }
 
         if (context.IsRunningOnWindows())
         {
-            context.Information("Calculating Semantic Version");
+            context.Information("Calculating semantic version...");
 
             if (server.IsRunningOnAppVeyor)
             {
@@ -38,35 +41,25 @@ public class BuildVersion
             }
         }
 
-        GitVersion assertedVersions = context.GitVersion(new GitVersionSettings
+        var assertedVersions = context.GitVersion(new GitVersionSettings
         {
             OutputType = GitVersionOutput.Json,
         });
 
         version = assertedVersions.MajorMinorPatch;
         semVersion = assertedVersions.LegacySemVerPadded;
+        milestone = string.Concat("v", version);
 
         if (string.IsNullOrEmpty(version) || string.IsNullOrEmpty(semVersion))
         {
-            context.Information("Fetching version from solution info...");
-            version = ReadSolutionInfoVersion(context);
-            semVersion = version;
+            throw new InvalidOperationException("Could not calculate version.");
         }
 
         return new BuildVersion
         {
             Version = version,
-            SemVersion = semVersion
+            SemVersion = semVersion,
+            Milestone = milestone
         };
-    }
-
-    public static string ReadSolutionInfoVersion(ICakeContext context)
-    {
-        var solutionInfo = context.ParseAssemblyInfo("./src/SolutionInfo.cs");
-        if (!string.IsNullOrEmpty(solutionInfo.AssemblyVersion))
-        {
-            return solutionInfo.AssemblyVersion;
-        }
-        throw new CakeException("Could not parse version.");
     }
 }
