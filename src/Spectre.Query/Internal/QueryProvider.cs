@@ -28,7 +28,7 @@ namespace Spectre.Query.Internal
             // Parse the expression.
             var expression = QueryExpressionParser.Parse(entityConfiguration, query);
             expression = BooleanRewriter.Rewrite(expression);
-            expression = NullableRewriter.Rewrite(expression);
+            expression = ConversionRewriter.Rewrite(expression);
 
             // Translate the expression.
             var result = QueryTranslator<TContext, TEntity>.Translate(expression);

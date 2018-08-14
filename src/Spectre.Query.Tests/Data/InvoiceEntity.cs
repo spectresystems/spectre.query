@@ -10,6 +10,6 @@ namespace Spectre.Query.Tests.Data
         public bool Cancelled { get; set; }
         public decimal Amount { get; set; }
         public string Comment { get; set; }
-        public int? Discount { get; set; }
+        public decimal? Discount { get; set; }
     }
 }

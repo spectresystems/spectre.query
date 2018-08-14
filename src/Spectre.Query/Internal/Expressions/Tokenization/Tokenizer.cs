@@ -56,7 +56,7 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
             }
             else if (char.IsDigit(current))
             {
-                Current = ReadInteger(position);
+                Current = ReadNumber(position, false);
             }
             else if (char.IsLetter(current))
             {
@@ -91,7 +91,62 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
             }
         }
 
-        private Token ReadInteger(int position)
+        private Token ReadNumber(int position, bool negative)
+        {
+            var accumulator = new StringBuilder();
+
+            // Negative number?
+            if (negative)
+            {
+                accumulator.Append("-");
+            }
+
+            // Parse the integer part.
+            var i = _buffer.Peek();
+            if (char.IsDigit(i))
+            {
+                if (i == '0')
+                {
+                    accumulator.Append(_buffer.Consume('0'));
+                }
+                else
+                {
+                    accumulator.Append(ReadInteger());
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("Expected number.");
+            }
+
+            // Got a fraction?
+            var hasFraction = false;
+            i = _buffer.Peek();
+            if (i == '.')
+            {
+                accumulator.Append(_buffer.Consume('.'));
+                if (!_buffer.CanRead || !char.IsDigit(_buffer.Peek()))
+                {
+                    throw new InvalidOperationException("Expected decimal.");
+                }
+
+                hasFraction = true;
+                accumulator.Append(ReadInteger());
+            }
+
+            // More non-whitespace tokens?
+            if (_buffer.CanRead && !char.IsWhiteSpace(_buffer.Peek()))
+            {
+                throw new InvalidOperationException("Invalid number format.");
+            }
+
+            var value = accumulator.ToString();
+            return hasFraction
+                ? new Token(TokenType.Decimal, value, value, position)
+                : new Token(TokenType.Integer, value, value, position);
+        }
+
+        private string ReadInteger()
         {
             var accumulator = new StringBuilder();
             while (_buffer.CanRead)
@@ -104,8 +159,7 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
                 }
                 break;
             }
-            var value = accumulator.ToString();
-            return new Token(TokenType.Integer, value, value, position);
+            return accumulator.ToString();
         }
 
         private Token ReadStringLiteral(int position)
@@ -207,10 +261,6 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
                     _buffer.Read();
                     return new Token(TokenType.LessThanOrEqualTo, "<=", "<=", position);
                 }
-                if (character == '=')
-                {
-                    return new Token(TokenType.EqualTo, "==", "==", position);
-                }
             }
 
             switch (character)
@@ -225,6 +275,10 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
                     return new Token(TokenType.OpeningParenthesis, "(", "(", position);
                 case ')':
                     return new Token(TokenType.ClosingParenthesis, ")", ")", position);
+                case '=':
+                    return new Token(TokenType.EqualTo, "==", "==", position);
+                case '-':
+                    return ReadNumber(position, negative: true);
                 default:
                     throw new InvalidOperationException($"Encountered unexpected symbol '{symbol}'.");
             }
