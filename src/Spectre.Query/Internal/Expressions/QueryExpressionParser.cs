@@ -114,6 +114,9 @@ namespace Spectre.Query.Internal.Expressions
                     case TokenType.Integer:
                         result = ParseConstant(tokenizer, value => int.Parse(value, CultureInfo.InvariantCulture));
                         break;
+                    case TokenType.Decimal:
+                        result = ParseConstant(tokenizer, value => decimal.Parse(value, CultureInfo.InvariantCulture));
+                        break;
                     case TokenType.String:
                         result = ParseConstant(tokenizer, value => value);
                         break;

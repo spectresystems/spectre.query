@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using System;
+using Shouldly;
 using Spectre.Query.Tests.Data;
 using Spectre.Query.Tests.Fixtures;
 using Xunit;
@@ -22,11 +23,11 @@ namespace Spectre.Query.Tests
 
         private void Seed(DataContext context)
         {
-            context.Invoices.Add(new Invoice { InvoiceId = 1, Amount = 12, Paid = true, Cancelled = true, Discount = 5 });
-            context.Invoices.Add(new Invoice { InvoiceId = 2, Amount = 24, Paid = true, Cancelled = true, Discount = 10 });
-            context.Invoices.Add(new Invoice { InvoiceId = 3, Amount = 48, Paid = true, Comment = "Foo", Discount = 15 });
+            context.Invoices.Add(new Invoice { InvoiceId = 1, Amount = 12.5M, Paid = true, Cancelled = true, Discount = 5 });
+            context.Invoices.Add(new Invoice { InvoiceId = 2, Amount = 24.5M, Paid = true, Cancelled = true, Discount = 10 });
+            context.Invoices.Add(new Invoice { InvoiceId = 3, Amount = 48.5M, Paid = true, Comment = "Foo", Discount = 15 });
             context.Invoices.Add(new Invoice { InvoiceId = 4, Amount = 96, Paid = false, Discount = 20 });
-            context.Invoices.Add(new Invoice { InvoiceId = 5, Amount = 128, Paid = true, Cancelled = true, Discount = null });
+            context.Invoices.Add(new Invoice { InvoiceId = 5, Amount = -128.5M, Paid = true, Cancelled = true, Discount = null });
         }
 
         [Fact]
@@ -99,7 +100,7 @@ namespace Spectre.Query.Tests
         }
 
         [Fact]
-        public void Should_Return_Correct_Data_For_Greater_Than_Or_Equals_Comparison()
+        public void Should_Return_Correct_Data_For_Integer_Greater_Than_Or_Equals_Comparison()
         {
             using (var fixture = new QueryProviderFixture(Seed))
             {
@@ -197,6 +198,97 @@ namespace Spectre.Query.Tests
 
                 // When
                 var result = fixture.Query<Invoice>("Discount = null");
+
+                // Then
+                result.Count.ShouldBe(1);
+                result[0].InvoiceId.ShouldBe(5);
+            }
+        }
+
+        [Fact]
+        public void Should_Return_Correct_Data_For_Comparison_Against_String()
+        {
+            using (var fixture = new QueryProviderFixture(Seed))
+            {
+                // Given
+                fixture.Initialize(Configure);
+
+                // When
+                var result = fixture.Query<Invoice>("Comment = 'Foo'");
+
+                // Then
+                result.Count.ShouldBe(1);
+                result[0].InvoiceId.ShouldBe(3);
+            }
+        }
+
+        [Fact]
+        public void Should_Return_Correct_Data_For_Comparison_Against_Decimal()
+        {
+            using (var fixture = new QueryProviderFixture(Seed))
+            {
+                // Given
+                fixture.Initialize(Configure);
+
+                // When
+                var result = fixture.Query<Invoice>("Amount = 48.5");
+
+                // Then
+                result.Count.ShouldBe(1);
+                result[0].InvoiceId.ShouldBe(3);
+            }
+        }
+
+        [Theory]
+        [InlineData("00.1")]
+        [InlineData("-00.1")]
+        [InlineData("-0.1z")]
+        [InlineData("-0.1.1")]
+        public void Should_Throw_If_Decimal_Value_Has_Bad_Formatting(string value)
+        {
+            using (var fixture = new QueryProviderFixture(Seed))
+            {
+                // Given
+                fixture.Initialize(Configure);
+
+                // When
+                var result = Record.Exception(() => fixture.Query<Invoice>($"Amount = {value}"));
+
+                // Then
+                result.ShouldBeOfType<InvalidOperationException>().And(ex =>
+                {
+                    ex.Message.ShouldBe("Invalid number format.");
+                });
+            }
+        }
+
+        [Fact]
+        public void Should_Return_Correct_Data_For_Equality_Comparison_Against_Decimal_And_Integer()
+        {
+            using (var fixture = new QueryProviderFixture(Seed))
+            {
+                // Given
+                fixture.Initialize(Configure);
+
+                // When
+                var result = fixture.Query<Invoice>("Amount = 96");
+
+                // Then
+                result.Count.ShouldBe(1);
+                result[0].InvoiceId.ShouldBe(4);
+            }
+        }
+
+        [Fact]
+        public void Should_Return_Correct_Data_For_Comparison_Against_Negative_Decimal()
+        {
+            using (var fixture = new QueryProviderFixture(Seed))
+            {
+                // Given
+                fixture.Initialize(Configure);
+
+                // When
+                var result = fixture.Query<Invoice>("Amount = -128.5");
 
                 // Then
                 result.Count.ShouldBe(1);

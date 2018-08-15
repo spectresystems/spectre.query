@@ -35,13 +35,14 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
             return result;
         }
 
-        public void Consume(char expected)
+        public char Consume(char expected)
         {
             var current = Read();
             if (current != expected)
             {
                 throw new InvalidOperationException($"Expected '{expected}' but encountered '{current}'.");
             }
+            return current;
         }
     }
 }
