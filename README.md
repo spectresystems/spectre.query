@@ -26,8 +26,6 @@ This project is currently under active development and might not be ready for pr
 
 * Navigation properties are not supported. For more complex queries, use [Query Types](https://github.com/aspnet/EntityFramework.Docs/blob/master/entity-framework/core/modeling/query-types.md).
 
-* There's currently no support for non-integer numbers.
-
 ## Usage
 
 ### 1. Install the NuGet package
