@@ -15,7 +15,12 @@ namespace Spectre.Query.Internal.Configuration
             _configuration = configuration;
         }
 
-        public void Configure<TEntity>(Action<IEntityConfigurator<TEntity>> options)
+        void IQueryConfigurator<TContext>.Configure<TEntity>(Action<IRootEntityConfigurator<TEntity>> options)
+        {
+            Configure(options);
+        }
+
+        public EntityConfiguration Configure<TEntity>(Action<IRootEntityConfigurator<TEntity>> options)
         {
             if (_configuration.Mappings.ContainsKey(typeof(TEntity)))
             {
@@ -29,11 +34,14 @@ namespace Spectre.Query.Internal.Configuration
             }
 
             // Execute the entity configuration.
-            var configurator = new EntityConfigurator<TContext, TEntity>(_context, entityType);
+            var configurator = new EntityConfigurator<TContext, TEntity>(this, _context, entityType);
             options(configurator);
 
             // Add the entity configuration to the configuration.
             _configuration.Add(configurator);
+
+            // Return the configuration.
+            return configurator.Configuration;
         }
     }
 }

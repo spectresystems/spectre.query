@@ -1,5 +1,8 @@
+#load "./build/data.cake"
 #load "./build/versioning.cake"
 #load "./build/buildserver.cake"
+
+#tool "nuget:https://api.nuget.org/v3/index.json?package=gitreleasemanager&version=0.7.1"
 
 ////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -11,13 +14,6 @@ var target = Argument("target", "Default");
 // SETUP
 ////////////////////////////////////////////////////////
 
-public class BuildData
-{
-    public string Configuration { get; set; }
-    public BuildVersion Versioning { get; set; }
-    public BuildServer Server { get; set; }
-}
-
 Setup<BuildData>(context => 
 {
     var server = BuildServer.Initialize(context);
@@ -27,6 +23,7 @@ Setup<BuildData>(context =>
 
     return new BuildData {
         Configuration = context.Argument<string>("configuration", "Release"),
+        Credentials = new GitHubCredentials(context),
         Versioning = versioning,
         Server = server,
     };
@@ -123,23 +120,10 @@ Task("Upload-AppVeyor-Artifacts")
 Task("Create-Release")
     .WithCriteria<BuildData>((context, data) => !data.Server.IsRunningOnAppVeyor, "Not running on AppVeyor")
     .WithCriteria<BuildData>((context, data) => !data.Server.IsPullRequest, "Won't publish pull requests")
-    .WithCriteria<BuildData>((context, data) => data.Server.IsMasterBranch, "Not on master branch")
+    .WithCriteria<BuildData>((context, data) => data.Server.IsReleaseBranch, "Not on a release branch")
     .Does<BuildData>((context, data) =>
 {
-    var username = context.Argument<string>("githubusername", null);
-    var password = context.Argument<string>("githubpassword", null);
-
-    if(string.IsNullOrWhiteSpace(username) ||
-       string.IsNullOrWhiteSpace(password)) 
-    {
-        throw new InvalidOperationException("No GitHub credentials provided.");
-    }
-
-    GitReleaseManagerCreate(username, password, "spectresystems", "spectre.query", new GitReleaseManagerCreateSettings {
-        Milestone = data.Versioning.Milestone,
-        Name = data.Versioning.Milestone,
-        TargetCommitish = "master"
-    });
+    CreateGitHubRelease(context, data);
 });
 
 Task("Publish-To-NuGet")

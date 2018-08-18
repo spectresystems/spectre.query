@@ -6,9 +6,9 @@ namespace Spectre.Query.Tests
     public static class ShouldlyExtensions
     {
         [DebuggerStepThrough]
-        public static void As<T>(this T obj, Action<T> action)
+        public static T And<T>(this T obj)
         {
-            action(obj);
+            return obj;
         }
     }
 }

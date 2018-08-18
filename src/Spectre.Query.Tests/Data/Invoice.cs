@@ -1,15 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace Spectre.Query.Tests.Data
 {
-    public class Invoice
+    public class Document
     {
         [Key]
-        public int InvoiceId { get; set; }
+        public int DocumentId { get; set; }
+    }
+
+    public class Invoice : Document
+    {
         public bool Paid { get; set; }
+
         public bool Cancelled { get; set; }
+
         public decimal Amount { get; set; }
+
         public string Comment { get; set; }
-        public int? Discount { get; set; }
+
+        public decimal? Discount { get; set; }
     }
 }

@@ -1,28 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Spectre.Query.Internal.Configuration
 {
     internal sealed class EntityConfiguration
     {
+        private readonly List<QueryProperty> _mappings;
+
         public Type Type { get; }
         public bool IsQueryType { get; }
-        public string TableName { get; }
-        public List<QueryProperty> Mappings { get; }
+        public IReadOnlyList<QueryProperty> Mappings => _mappings;
 
         public EntityConfiguration(IEntityType entityType, Type type)
         {
+            _mappings = new List<QueryProperty>();
+
             Type = type;
-            TableName = entityType.Relational().TableName;
             IsQueryType = entityType.IsQueryType;
-            Mappings = new List<QueryProperty>();
+        }
+
+        public void AddProperty(QueryProperty property)
+        {
+            if (GetProperty(property.Alias) != null)
+            {
+                throw new InvalidOperationException($"The property '{property.Alias}' have been defined twice.");
+            }
+
+            _mappings.Add(property);
         }
 
         public QueryProperty GetProperty(string name)
         {
-            return Mappings.Find(m => m.Alias.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return _mappings.Find(m => m.Alias.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

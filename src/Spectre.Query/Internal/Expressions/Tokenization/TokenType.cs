@@ -3,6 +3,7 @@
     internal enum TokenType
     {
         Integer,
+        Decimal,
         Word,
         String,
         EqualTo,

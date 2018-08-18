@@ -114,6 +114,9 @@ namespace Spectre.Query.Internal.Expressions
                     case TokenType.Integer:
                         result = ParseConstant(tokenizer, value => int.Parse(value, CultureInfo.InvariantCulture));
                         break;
+                    case TokenType.Decimal:
+                        result = ParseConstant(tokenizer, value => decimal.Parse(value, CultureInfo.InvariantCulture));
+                        break;
                     case TokenType.String:
                         result = ParseConstant(tokenizer, value => value);
                         break;
@@ -155,7 +158,9 @@ namespace Spectre.Query.Internal.Expressions
                 throw new InvalidOperationException("Could not find property.");
             }
 
-            return new PropertyExpression(property.PropertyInfo);
+            return new PropertyExpression(
+                property.EntityType,
+                property.PropertyInfo);
         }
 
         private static QueryExpression ParseConstant(Tokenizer tokenizer, Func<string, object> converter)
