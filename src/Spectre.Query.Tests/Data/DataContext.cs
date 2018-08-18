@@ -4,7 +4,7 @@ namespace Spectre.Query.Tests.Data
 {
     public sealed class DataContext : DbContext
     {
-        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
         public DataContext()
         {
@@ -17,8 +17,10 @@ namespace Spectre.Query.Tests.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Invoice>()
-                .ToTable("Invoices");
+            modelBuilder.Entity<Document>()
+                .HasDiscriminator<string>("DocumentType")
+                .HasValue<Document>("Document")
+                .HasValue<Invoice>("Invoice");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
