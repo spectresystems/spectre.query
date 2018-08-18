@@ -26,8 +26,6 @@ This project is currently under active development and might not be ready for pr
 
 * Navigation properties are not supported. For more complex queries, use [Query Types](https://github.com/aspnet/EntityFramework.Docs/blob/master/entity-framework/core/modeling/query-types.md).
 
-* There's currently no support for non-integer numbers.
-
 ## Usage
 
 ### 1. Install the NuGet package
@@ -111,20 +109,21 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 [Route("api/movies")]
 public class MovieController : ControllerBase
 {
-    private readonly IQueryProviderSession<MovieContext> _provider;
+    private readonly MovieContext _context;
+    private readonly IQueryProvider<MovieContext> _provider;
 
-    public MovieController(IQueryProviderSession<MovieContext> provider)
+    public MovieController(MovieContext context, IQueryProvider<MovieContext> provider)
     {
+        _context = context;
         _provider = provider;
     }
 
     [HttpGet]
     public IActionResult<List<Movie>> Query([FromHeader]string query = "Rating > 80 AND !Seen")
     {
-        return _provider
-            .Query<Movie>(query)
-            .OrderByDescending(x => x.Rating)
-            .ToList();
+        return _provider.Query<Movie>(_context, query)
+            .OrderByDescending(movie => movie.Rating)
+            .ToList()
     }
 }
 ```
