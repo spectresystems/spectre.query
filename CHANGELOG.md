@@ -1,3 +1,7 @@
+### New in 0.5.0 (Released 2018/08/19)
+
+- [__#11__](https://github.com/spectresystems/spectre.query/issues/11) Add way of getting the parsed expression from a query
+
 ### New in 0.4.0 (Released 2018/08/18)
 
 - [__#9__](https://github.com/spectresystems/spectre.query/issues/9) Add support for mapping inherited items
