@@ -1,14 +1,17 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace Spectre.Query.Internal
 {
     internal sealed class QueryTranslatorContext
     {
+        public Type RootType { get; }
         public ParameterExpression Parameter { get; }
 
-        public QueryTranslatorContext(ParameterExpression parameter)
+        public QueryTranslatorContext(Type rootType)
         {
-            Parameter = parameter;
+            RootType = rootType;
+            Parameter = Expression.Parameter(rootType, "entity");
         }
     }
 }

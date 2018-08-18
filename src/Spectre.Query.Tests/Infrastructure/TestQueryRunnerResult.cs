@@ -8,6 +8,6 @@ namespace Spectre.Query.Tests.Infrastructure
     public sealed class TestQueryRunnerResult
     {
         public string Query { get; set; }
-        public List<Invoice> Result { get; set; }
+        public List<Document> Result { get; set; }
     }
 }

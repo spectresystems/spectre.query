@@ -10,7 +10,7 @@ namespace Spectre.Query.Tests.Infrastructure
 {
     public static class TestQueryRunner
     {
-        public static async Task<TestQueryRunnerResult> Execute(string query, Func<List<Invoice>> seeder, Action<IQueryConfigurator<DataContext>> options = null)
+        public static async Task<TestQueryRunnerResult> Execute(string query, Func<List<Document>> seeder, Action<IQueryConfigurator<DataContext>> options = null)
         {
             seeder = seeder ?? throw new InvalidOperationException(nameof(seeder));
             options = options ?? ConfigureDefaultQueryProvider;
@@ -25,14 +25,14 @@ namespace Spectre.Query.Tests.Infrastructure
                     context.Database.EnsureCreated();
 
                     // Seed
-                    await context.Invoices.AddRangeAsync(seeder());
+                    await context.Documents.AddRangeAsync(seeder());
                     await context.SaveChangesAsync();
 
                     // Initialize provider.
                     var provider = QueryProviderBuilder.Build(context, options);
 
                     // Execute query.
-                    var result = provider.Query<Invoice>(context, query).ToList();
+                    var result = provider.Query<Document>(context, query).ToList();
                     return new TestQueryRunnerResult
                     {
                         Query = query,
@@ -44,14 +44,17 @@ namespace Spectre.Query.Tests.Infrastructure
 
         private static void ConfigureDefaultQueryProvider(IQueryConfigurator<DataContext> options)
         {
-            options.Configure<Invoice>(i =>
+            options.Configure<Document>(document =>
             {
-                i.Map("Id", e => e.InvoiceId);
-                i.Map("Paid", e => e.Paid);
-                i.Map("Amount", e => e.Amount);
-                i.Map("Comment", e => e.Comment);
-                i.Map("Cancelled", e => e.Cancelled);
-                i.Map("Discount", e => e.Discount);
+                document.Map("Id", e => e.DocumentId);
+                document.Map<Invoice>(invoice =>
+                {
+                    invoice.Map("Paid", e => e.Paid);
+                    invoice.Map("Amount", e => e.Amount);
+                    invoice.Map("Comment", e => e.Comment);
+                    invoice.Map("Cancelled", e => e.Cancelled);
+                    invoice.Map("Discount", e => e.Discount);
+                });
             });
         }
     }

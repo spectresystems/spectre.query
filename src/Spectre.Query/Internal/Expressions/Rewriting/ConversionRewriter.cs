@@ -45,7 +45,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                 // Try converting the right side of the expression.
                 return new RelationalExpression(
                     expression.Left,
-                    new ConvertExpression(expression.Right.Accept(this, context), property.Type),
+                    new ConvertExpression(expression.Right.Accept(this, context), property.PropertyType),
                     expression.Operator);
             }
 
@@ -55,12 +55,12 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                 if (expression.Right is ConstantExpression constant && constant.Value != null)
                 {
                     // Check if they're not the same type.
-                    if (property.Type != constant.Value.GetType())
+                    if (property.PropertyType != constant.Value.GetType())
                     {
                         // Try converting the right side of the expression to the property's type.
                         return new RelationalExpression(
                             expression.Left,
-                            new ConvertExpression(expression.Right.Accept(this, context), property.Type),
+                            new ConvertExpression(expression.Right.Accept(this, context), property.PropertyType),
                             expression.Operator);
                     }
                 }
@@ -69,7 +69,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                     // Try converting the right side of the expression to the property's type.
                     return new RelationalExpression(
                         expression.Left,
-                        new ConvertExpression(expression.Right.Accept(this, context), property.Type),
+                        new ConvertExpression(expression.Right.Accept(this, context), property.PropertyType),
                         expression.Operator);
                 }
 

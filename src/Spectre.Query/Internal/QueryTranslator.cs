@@ -17,16 +17,13 @@ namespace Spectre.Query.Internal
                 return _ => true;
             }
 
-            // Define the parameter that will be used with out lambda expression.
-            var parameter = Expression.Parameter(typeof(TEntity), "entity");
-
             // Translate the query expression to a LINQ expression.
             var visitor = new QueryTranslator<TContext, TEntity>();
-            var context = new QueryTranslatorContext(parameter);
+            var context = new QueryTranslatorContext(typeof(TEntity));
             var expression = query.Accept(visitor, context);
 
             // Parse the expression and rewrite it.
-            return Expression.Lambda<Func<TEntity, bool>>(expression, parameter);
+            return Expression.Lambda<Func<TEntity, bool>>(expression, context.Parameter);
         }
 
         protected override Expression VisitAnd(QueryTranslatorContext context, AndExpression expression)
@@ -60,6 +57,14 @@ namespace Spectre.Query.Internal
 
         protected override Expression VisitProperty(QueryTranslatorContext context, PropertyExpression expression)
         {
+            if (expression.EntityType != context.RootType)
+            {
+                // Convert the parameter to the expected type.
+                return Expression.Property(
+                        Expression.Convert(context.Parameter, expression.EntityType),
+                        expression.Name);
+            }
+
             return Expression.Property(context.Parameter, expression.Name);
         }
 

@@ -158,7 +158,9 @@ namespace Spectre.Query.Internal.Expressions
                 throw new InvalidOperationException("Could not find property.");
             }
 
-            return new PropertyExpression(property.PropertyInfo);
+            return new PropertyExpression(
+                property.EntityType,
+                property.PropertyInfo);
         }
 
         private static QueryExpression ParseConstant(Tokenizer tokenizer, Func<string, object> converter)

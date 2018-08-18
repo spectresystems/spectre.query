@@ -15,7 +15,7 @@ namespace Spectre.Query.Tests.Infrastructure
             // All expected items in collection?
             foreach (var item in expected)
             {
-                if (result.Result.Find(x => x.InvoiceId == item) == null)
+                if (result.Result.Find(x => x.DocumentId == item) == null)
                 {
                     throw new InvalidOperationException($"Item #{item} is not in result collection.");
                 }

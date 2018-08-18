@@ -6,6 +6,6 @@ namespace Spectre.Query
     public interface IQueryConfigurator<TContext>
         where TContext : DbContext
     {
-        void Configure<TEntity>(Action<IEntityConfigurator<TEntity>> options);
+        void Configure<TEntity>(Action<IRootEntityConfigurator<TEntity>> options);
     }
 }
