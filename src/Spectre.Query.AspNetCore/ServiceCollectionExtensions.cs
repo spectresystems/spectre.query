@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Spectre.Query;
-using Spectre.Query.AspNetCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,12 +16,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 using (var scope = factory.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<TContext>();
-                    return QueryProviderBuilder.Build<TContext>(context, configurator);
+                    return QueryProviderBuilder.Build(context, configurator);
                 }
             });
-
-            // Register the query provider session.
-            services.AddScoped<IQueryProviderSession<TContext>, QueryProviderSession<TContext>>();
         }
     }
 }

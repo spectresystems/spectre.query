@@ -109,20 +109,21 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 [Route("api/movies")]
 public class MovieController : ControllerBase
 {
-    private readonly IQueryProviderSession<MovieContext> _provider;
+    private readonly MovieContext _context;
+    private readonly IQueryProvider<MovieContext> _provider;
 
-    public MovieController(IQueryProviderSession<MovieContext> provider)
+    public MovieController(MovieContext context, IQueryProvider<MovieContext> provider)
     {
+        _context = context;
         _provider = provider;
     }
 
     [HttpGet]
     public IActionResult<List<Movie>> Query([FromHeader]string query = "Rating > 80 AND !Seen")
     {
-        return _provider
-            .Query<Movie>(query)
-            .OrderByDescending(x => x.Rating)
-            .ToList();
+        return _provider.Query<Movie>(_context, query)
+            .OrderByDescending(movie => movie.Rating)
+            .ToList()
     }
 }
 ```
