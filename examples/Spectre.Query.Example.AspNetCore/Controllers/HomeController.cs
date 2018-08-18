@@ -7,23 +7,25 @@ namespace Spectre.Query.AspNetCore.Example.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IQueryProviderSession<MovieContext> _provider;
+        private readonly MovieContext _context;
+        private readonly IQueryProvider<MovieContext> _provider;
 
-        public HomeController(IQueryProviderSession<MovieContext> provider)
+        public HomeController(MovieContext context, IQueryProvider<MovieContext> provider)
         {
+            _context = context;
             _provider = provider;
         }
 
         [HttpGet]
         public IActionResult Index(string query = null)
         {
-            var movies = _provider
-                .Query<Movie>(query)
-                .OrderByDescending(x => x.Rating);
+            var movies = _provider.Query<Movie>(_context, query)
+                .OrderByDescending(movie => movie.Rating)
+                .ToList();
 
             return View(new SearchResultModel<Movie>
             {
-                Movies = movies.ToList(),
+                Movies = movies,
                 Query = query
             });
         }
@@ -37,13 +39,13 @@ namespace Spectre.Query.AspNetCore.Example.Controllers
         [HttpGet]
         public IActionResult Projection(string query = null)
         {
-            var movies = _provider
-                .Query<MovieProjection>(query)
-                .OrderByDescending(x => x.Rating);
+            var movies = _provider.Query<MovieProjection>(_context, query)
+                .OrderByDescending(x => x.Rating)
+                .ToList();
 
             return View(new SearchResultModel<MovieProjection>
             {
-                Movies = movies.ToList(),
+                Movies = movies,
                 Query = query
             });
         }
