@@ -1,25 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Spectre.Query.Internal.Expressions.Ast
 {
     internal sealed class PropertyExpression : QueryExpression
     {
-        public string Name { get; }
         public Type EntityType { get; }
         public Type PropertyType { get; }
+        public IReadOnlyList<PropertyInfo> Properties { get; }
         public bool IsNullable { get; }
 
-        public PropertyExpression(Type objectType, PropertyInfo property)
+        public PropertyExpression(Type objectType, IReadOnlyList<PropertyInfo> properties)
         {
-            if (property == null)
-            {
-                throw new ArgumentNullException(nameof(property));
-            }
-
-            Name = property.Name;
             EntityType = objectType;
-            PropertyType = property.PropertyType;
+            PropertyType = properties[properties.Count - 1].PropertyType;
+            Properties = properties;
             IsNullable = Nullable.GetUnderlyingType(PropertyType) != null;
         }
 
