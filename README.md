@@ -8,23 +8,13 @@ Spectre.Query is a library for doing simplified (safe) querying in Entity Framew
 ID > 0 AND Year < 2007 AND Comment != null AND !Seen
 ```
 
+This project is currently under active development and might not be ready for production.
+
 ## Table of Contents
 
-1. [Introduction](#introduction)
-1. [Known issues](#known-issues)
 1. [Usage](#usage)
 1. [Usage (ASP.NET Core)](#usage-aspnet-core)
 1. [License](#license)
-
-## Introduction
-
-The query engine was originally implemented very quick and dirty for an internal application, and before open sourcing it, the code have been somewhat cleaned up. However, there are still things that will need to be improved. Some functionality was also removed due to the hackish nature of the implementation. See known issues below for more information.
-
-This project is currently under active development and might not be ready for production.
-
-## Known issues
-
-* Navigation properties are not supported. For more complex queries, use [Query Types](https://github.com/aspnet/EntityFramework.Docs/blob/master/entity-framework/core/modeling/query-types.md).
 
 ## Usage
 
@@ -42,6 +32,7 @@ var provider = QueryProviderBuilder.Build(context, options =>
     options.Configure<Movie>(movie =>
     {
         movie.Map("Id", e => e.MovieId);
+        movie.Map("Genre", e => e.Genre.Name);
         movie.Map("Title", e => e.Name);
         movie.Map("Year", e => e.ReleasedAt);
         movie.Map("Score", e => e.Rating);
@@ -76,9 +67,10 @@ public void ConfigureServices(IServiceCollection services)
 {
     services.AddQueryProvider<MovieDbContext>(options =>
     {
-        options.Entity<Movie>(movie =>
+        options.Configure<Movie>(movie =>
         {
             movie.Map("Id", e => e.MovieId);
+            movie.Map("Genre", e => e.Genre.Name);
             movie.Map("Title", e => e.Name);
             movie.Map("Year", e => e.ReleasedAt);
             movie.Map("Score", e => e.Rating);
