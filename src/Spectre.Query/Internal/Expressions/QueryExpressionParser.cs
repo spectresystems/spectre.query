@@ -160,7 +160,7 @@ namespace Spectre.Query.Internal.Expressions
 
             return new PropertyExpression(
                 property.EntityType,
-                property.PropertyInfo);
+                property.Properties);
         }
 
         private static QueryExpression ParseConstant(Tokenizer tokenizer, Func<string, object> converter)

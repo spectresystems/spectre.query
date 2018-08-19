@@ -49,6 +49,7 @@ namespace Spectre.Query.Tests.Infrastructure
                 document.Map("Id", e => e.DocumentId);
                 document.Map<Invoice>(invoice =>
                 {
+                    invoice.Map("Company", e => e.Company.Name);
                     invoice.Map("Paid", e => e.Paid);
                     invoice.Map("Amount", e => e.Amount);
                     invoice.Map("Comment", e => e.Comment);

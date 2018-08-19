@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Spectre.Query.Internal.Expressions;
 using Spectre.Query.Internal.Expressions.Ast;
@@ -13,7 +15,6 @@ namespace Spectre.Query.Internal
         {
             if (query == null)
             {
-                var result = Expression.Constant(true);
                 return _ => true;
             }
 
@@ -57,15 +58,18 @@ namespace Spectre.Query.Internal
 
         protected override Expression VisitProperty(QueryTranslatorContext context, PropertyExpression expression)
         {
-            if (expression.EntityType != context.RootType)
+            var parameter = expression.EntityType != context.RootType
+                ? (Expression)Expression.Convert(context.Parameter, expression.EntityType)
+                : context.Parameter;
+
+            var properties = new Queue<PropertyInfo>(expression.Properties);
+            var current = Expression.MakeMemberAccess(parameter, properties.Dequeue());
+            while (properties.Count > 0)
             {
-                // Convert the parameter to the expected type.
-                return Expression.Property(
-                        Expression.Convert(context.Parameter, expression.EntityType),
-                        expression.Name);
+                current = Expression.MakeMemberAccess(current, properties.Dequeue());
             }
 
-            return Expression.Property(context.Parameter, expression.Name);
+            return current;
         }
 
         protected override Expression VisitRelational(QueryTranslatorContext context, RelationalExpression expression)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -49,41 +50,48 @@ namespace Spectre.Query.Internal.Configuration
                 throw new InvalidOperationException("Expected member expression");
             }
 
-            var property = GetPropertyInfo(member);
-            var entityProperty = _entityType.FindProperty(property);
-            if (entityProperty == null)
+            var properties = GetPropertyInfo(member);
+            if (properties.Count == 0)
             {
-                throw new InvalidOperationException($"The property '{typeof(TEntity).Name}.{property.Name}' is not mapped to entity.");
+                throw new InvalidOperationException("Could not resolve property from expression.");
             }
 
-            Configuration.AddProperty(new QueryProperty
+            // Get the last property of the expression.
+            var property = properties[properties.Count - 1];
+
+            // Is the last property a navigational property?
+            if (_context.Model.FindEntityType(property.PropertyType) != null)
             {
-                EntityType = typeof(TEntity),
-                Alias = name,
-                PropertyInfo = property
-            });
+                throw new InvalidOperationException($"Cannot map the navigational property '{property.Name}' directly.");
+            }
+
+            // Make sure that the property is a property on the entity.
+            var entityType = _context.Model.FindEntityType(property.DeclaringType) ?? _entityType;
+            var entityProperty = entityType.FindProperty(property);
+            if (entityProperty == null)
+            {
+                var path = string.Join(".", properties.Select(x => x.Name));
+                throw new InvalidOperationException($"The property '{entityType.ClrType.Name}.{path}' is not mapped to an entity.");
+            }
+
+            Configuration.AddProperty(
+                new QueryProperty(name, _entityType.ClrType, properties));
         }
 
-        private static PropertyInfo GetPropertyInfo(MemberExpression member)
+        private static IReadOnlyList<PropertyInfo> GetPropertyInfo(MemberExpression member)
         {
-            var parts = new List<PropertyInfo>();
+            var parts = new Stack<PropertyInfo>();
             while (member?.Expression != null)
             {
-                // Get the property info.
                 if (!(member.Member is PropertyInfo property))
                 {
                     throw new InvalidOperationException("Only properties can be mapped.");
                 }
-                parts.Add(property);
+                parts.Push(property);
                 member = member.Expression as MemberExpression;
             }
 
-            if (parts.Count != 1)
-            {
-                throw new InvalidOperationException("Navigational properties are not allowed.");
-            }
-
-            return parts[0];
+            return parts.ToArray();
         }
     }
 }
