@@ -12,13 +12,19 @@ namespace Spectre.Query.Tests
     {
         public static List<Document> DefaultSeeder()
         {
+            var companies = new[]
+            {
+                new Company { CompanyId = 1, Name = "ACME Inc." },
+                new Company { CompanyId = 2, Name = "Contoso" }
+            };
+
             return new List<Document>
             {
-                new Invoice { DocumentId = 1, Amount = -1.5M, Paid = true, Cancelled = true, Discount = 5 },
-                new Invoice { DocumentId = 2, Amount = 1.5M, Paid = true, Cancelled = true, Discount = 10 },
-                new Invoice { DocumentId = 3, Amount = 2, Paid = true, Comment = "Foo", Discount = 15 },
-                new Invoice { DocumentId = 4, Amount = 3.5M, Paid = false, Cancelled = false, Discount = 20 },
-                new Invoice { DocumentId = 5, Amount = 4.5M, Paid = true, Cancelled = true, Discount = null },
+                new Invoice { DocumentId = 1, Amount = -1.5M, Paid = true, Cancelled = true, Discount = 5, Company = companies[1] },
+                new Invoice { DocumentId = 2, Amount = 1.5M, Paid = true, Cancelled = true, Discount = 10, Company = companies[1] },
+                new Invoice { DocumentId = 3, Amount = 2, Paid = true, Comment = "Foo", Discount = 15, Company = companies[0] },
+                new Invoice { DocumentId = 4, Amount = 3.5M, Paid = false, Cancelled = false, Discount = 20, Company = companies[1] },
+                new Invoice { DocumentId = 5, Amount = 4.5M, Paid = true, Cancelled = true, Discount = null, Company = companies[1] },
                 new Document { DocumentId = 6 }
             };
         }
@@ -70,6 +76,54 @@ namespace Spectre.Query.Tests
                 result
                     .ShouldBeOfType<InvalidOperationException>()
                     .And().Message.ShouldBe("The property 'Foo' have been defined twice.");
+            }
+
+            [Fact]
+            public async Task Should_Throw_If_Trying_To_Map_Navigational_Property_Directly()
+            {
+                // Given, When
+                var result = await Record.ExceptionAsync(async () =>
+                {
+                    await TestQueryRunner.Execute("Foo = 'Contoso'", DefaultSeeder, options =>
+                    {
+                        options.Configure<Document>(document =>
+                        {
+                            document.Map<Invoice>(invoice =>
+                            {
+                                invoice.Map("Foo", e => e.Company);
+                            });
+                        });
+                    });
+                });
+
+                // Then
+                result
+                    .ShouldBeOfType<InvalidOperationException>()
+                    .And().Message.ShouldBe("Cannot map the navigational property 'Company' directly.");
+            }
+
+            [Fact]
+            public async Task Should_Throw_If_Trying_To_Map_Non_Entity_Type_Property()
+            {
+                // Given, When
+                var result = await Record.ExceptionAsync(async () =>
+                {
+                    await TestQueryRunner.Execute("Foo = 'Contoso'", DefaultSeeder, options =>
+                    {
+                        options.Configure<Document>(document =>
+                        {
+                            document.Map<Invoice>(invoice =>
+                            {
+                                invoice.Map("Foo", e => e.Dummy);
+                            });
+                        });
+                    });
+                });
+
+                // Then
+                result
+                    .ShouldBeOfType<InvalidOperationException>()
+                    .And().Message.ShouldBe("The property 'Invoice.Dummy' is not mapped to an entity.");
             }
         }
 
@@ -142,6 +196,21 @@ namespace Spectre.Query.Tests
             [InlineData("Discount = 20.0", new int[] { 4 })]
             [InlineData("Discount = null", new int[] { 5, 6 })]
             public async Task Nullable_Decimal(string query, int[] expected)
+            {
+                // Given, When
+                var result = await TestQueryRunner.Execute(query, DefaultSeeder);
+
+                // Then
+                result.ShouldContainEntities(expected);
+            }
+
+            [Theory]
+            [InlineData("Company = 'ACME Inc.'", new int[] { 3 })]
+            [InlineData("Company = 'Contoso'", new int[] { 1, 2, 4, 5 })]
+            [InlineData("Company != 'Contoso'", new int[] { 3, 6 })]
+            [InlineData("Company != 'Contoso' AND Company != NULL", new int[] { 3 })]
+            [InlineData("Company = NULL", new int[] { 6 })]
+            public async Task Navigational_Property(string query, int[] expected)
             {
                 // Given, When
                 var result = await TestQueryRunner.Execute(query, DefaultSeeder);
