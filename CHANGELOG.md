@@ -1,3 +1,5 @@
+### New in 0.6.0 (Released 2018/08/19)
+
 ### New in 0.5.0 (Released 2018/08/19)
 
 - [__#11__](https://github.com/spectresystems/spectre.query/issues/11) Add way of getting the parsed expression from a query
