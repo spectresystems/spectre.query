@@ -21,6 +21,7 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
                 { "or", (TokenType.Or, "OR") },
                 { "and", (TokenType.And, "AND") },
                 { "not", (TokenType.Not, "NOT") },
+                { "like", (TokenType.Like, "LIKE") },
                 { "true", (TokenType.True, "true") },
                 { "false", (TokenType.False, "false") },
                 { "null", (TokenType.Null, "null") },
@@ -277,6 +278,8 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
                     return new Token(TokenType.ClosingParenthesis, ")", ")", position);
                 case '=':
                     return new Token(TokenType.EqualTo, "==", "==", position);
+                case '~':
+                    return new Token(TokenType.Like, "LIKE", "LIKE", position);
                 case '-':
                     return ReadNumber(position, negative: true);
                 default:

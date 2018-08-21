@@ -7,5 +7,6 @@
         public int ReleasedAt { get; set; }
         public int Rating { get; set; }
         public bool Seen { get; set; }
+        public Genre Genre { get; set; }
     }
 }

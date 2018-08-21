@@ -14,6 +14,7 @@
         LessThanOrEqualTo,
         OpeningParenthesis,
         ClosingParenthesis,
+        Like,
         Not,
         And,
         Or,

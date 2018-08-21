@@ -23,6 +23,7 @@
                 <th>Title</th>
                 <th>Year</th>
                 <th>Score (0-100)</th>
+                <th>Genre</th>
                 <th>Seen</th>
             </tr>
         </thead>
@@ -34,6 +35,7 @@
                     <td>@movie.Name</td>
                     <td>@movie.ReleasedAt</td>
                     <td>@movie.Rating</td>
+                    <td>@movie.Genre.Name</td>
                     <td>@(movie.Seen ? "Yes" : "No")</td>
                 </tr>
             }

@@ -32,23 +32,26 @@ namespace Spectre.Query.AspNetCore.Example
             // Configure the query provider.
             services.AddQueryProvider<MovieContext>(options =>
             {
+                // Configure an entity.
                 options.Configure<Movie>(movie =>
                 {
                     movie.Map("Id", e => e.MovieId);
+                    movie.Map("Genre", e => e.Genre.Name);
                     movie.Map("Title", e => e.Name);
                     movie.Map("Year", e => e.ReleasedAt);
                     movie.Map("Score", e => e.Rating);
                     movie.Map("Seen", e => e.Seen);
                 });
 
+                // Configure a query type projection.
                 options.Configure<MovieProjection>(movie =>
                 {
                     movie.Map("Id", e => e.MovieId);
+                    movie.Map("Genre", e => e.Genre);
                     movie.Map("Title", e => e.Name);
                     movie.Map("Year", e => e.ReleasedAt);
                     movie.Map("Score", e => e.Rating);
                     movie.Map("Seen", e => e.Seen);
-                    movie.Map("Genre", e => e.Genre);
                 });
             });
 

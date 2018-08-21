@@ -16,6 +16,7 @@ namespace Spectre.Query.Example
                     options.Configure<Movie>(movie =>
                     {
                         movie.Map("Id", e => e.MovieId);
+                        movie.Map("Genre", e => e.Genre.Name);
                         movie.Map("Title", e => e.Name);
                         movie.Map("Year", e => e.ReleasedAt);
                         movie.Map("Score", e => e.Rating);

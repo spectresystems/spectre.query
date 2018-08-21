@@ -8,17 +8,23 @@ namespace Spectre.Query.Internal.Expressions
 {
     internal static class QueryExpressionParser
     {
-        public static QueryExpression Parse(EntityConfiguration configuration, string expression)
+        public static QueryExpression Parse(EntityConfiguration configuration, string query)
         {
-            if (string.IsNullOrWhiteSpace(expression))
+            if (string.IsNullOrWhiteSpace(query))
             {
                 return null;
             }
 
-            var tokenizer = new Tokenizer(expression);
+            var tokenizer = new Tokenizer(query);
             tokenizer.MoveNext();
 
-            return Parse(configuration, tokenizer);
+            var expression = Parse(configuration, tokenizer);
+            if (tokenizer.Current != null)
+            {
+                throw new InvalidOperationException($"Unexpected token '{tokenizer.Current.Value}' in query.");
+            }
+
+            return expression;
         }
 
         private static QueryExpression Parse(EntityConfiguration configuration, Tokenizer tokenizer)
@@ -92,12 +98,21 @@ namespace Spectre.Query.Internal.Expressions
                 tokenizer.MoveNext(); // Consume operator.
 
                 // Parse the right side literal in the relation.
+                var left = expression;
                 var right = ParseLiteral(configuration, tokenizer);
 
-                return new RelationalExpression(
-                    expression,
-                    right,
-                    @operator);
+                return new RelationalExpression(left, right, @operator);
+            }
+
+            if (tokenizer.Current?.Type == TokenType.Like)
+            {
+                tokenizer.MoveNext();
+
+                // Parse the right side literal in the relation.
+                var left = expression;
+                var right = ParseLiteral(configuration, tokenizer);
+
+                return new LikeExpression(left, right);
             }
 
             return expression;
