@@ -22,6 +22,12 @@ namespace Spectre.Query.Internal.Expressions
             return expression;
         }
 
+        protected override QueryExpression VisitLike(TContext context, LikeExpression expression)
+        {
+            return VisitBinary(context, expression, (left, right) =>
+                new LikeExpression(left, right));
+        }
+
         protected override QueryExpression VisitNot(TContext context, NotExpression expression)
         {
             return VisitUnary(context, expression, child =>

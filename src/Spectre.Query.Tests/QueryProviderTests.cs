@@ -20,10 +20,10 @@ namespace Spectre.Query.Tests
 
             return new List<Document>
             {
-                new Invoice { DocumentId = 1, Amount = -1.5M, Paid = true, Cancelled = true, Discount = 5, Company = companies[1] },
-                new Invoice { DocumentId = 2, Amount = 1.5M, Paid = true, Cancelled = true, Discount = 10, Company = companies[1] },
+                new Invoice { DocumentId = 1, Amount = -1.5M, Paid = true, Comment = "Ooz", Cancelled = true, Discount = 5, Company = companies[1] },
+                new Invoice { DocumentId = 2, Amount = 1.5M, Paid = true, Comment = "Fooz", Cancelled = true, Discount = 10, Company = companies[1] },
                 new Invoice { DocumentId = 3, Amount = 2, Paid = true, Comment = "Foo", Discount = 15, Company = companies[0] },
-                new Invoice { DocumentId = 4, Amount = 3.5M, Paid = false, Cancelled = false, Discount = 20, Company = companies[1] },
+                new Invoice { DocumentId = 4, Amount = 3.5M, Paid = false, Comment = "Bar", Cancelled = false, Discount = 20, Company = companies[1] },
                 new Invoice { DocumentId = 5, Amount = 4.5M, Paid = true, Cancelled = true, Discount = null, Company = companies[1] },
                 new Document { DocumentId = 6 }
             };
@@ -127,6 +127,27 @@ namespace Spectre.Query.Tests
             }
         }
 
+        public sealed class Like
+        {
+            [Theory]
+            [InlineData("Comment LIKE 'Foo%'", new[] { 2, 3 })]
+            [InlineData("Comment ~ 'Foo%'", new[] { 2, 3 })]
+            [InlineData("Comment LIKE 'Fo%'", new[] { 2, 3 })]
+            [InlineData("Comment ~ 'Fo%'", new[] { 2, 3 })]
+            [InlineData("Comment LIKE '%ooz'", new[] { 1, 2 })]
+            [InlineData("Comment ~ '%ooz'", new[] { 1, 2 })]
+            [InlineData("Comment LIKE '%o%'", new[] { 1, 2, 3 })]
+            [InlineData("Comment ~ '%o%'", new[] { 1, 2, 3 })]
+            public async Task Integer(string query, int[] expected)
+            {
+                // Given, When
+                var result = await TestQueryRunner.Execute(query, DefaultSeeder);
+
+                // Then
+                result.ShouldContainEntities(expected);
+            }
+        }
+
         public sealed class Comparison
         {
             [Theory]
@@ -161,9 +182,9 @@ namespace Spectre.Query.Tests
 
             [Theory]
             [InlineData("Comment = 'Foo'", new int[] { 3 })]
-            [InlineData("Comment = null", new int[] { 1, 2, 4, 5, 6 })]
+            [InlineData("Comment = null", new int[] { 5, 6 })]
             [InlineData("Comment != 'Foo'", new int[] { 1, 2, 4, 5, 6 })]
-            [InlineData("Comment != null", new int[] { 3 })]
+            [InlineData("Comment != null", new int[] { 1, 2, 3, 4 })]
             public async Task String(string query, int[] expected)
             {
                 // Given, When

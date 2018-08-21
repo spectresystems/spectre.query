@@ -44,6 +44,16 @@ namespace Spectre.Query.Internal
             return Expression.Convert(expression.Expression.Accept(this, context), expression.Type);
         }
 
+        protected override Expression VisitLike(QueryTranslatorContext context, LikeExpression expression)
+        {
+            var left = expression.Left.Accept(this, context);
+            var right = expression.Right.Accept(this, context);
+
+            return Expression.Call(
+                null, typeof(DbFunctionsExtensions).GetMethod("Like", new[] { typeof(DbFunctions), typeof(string), typeof(string) }),
+                Expression.Constant(EF.Functions), left, right);
+        }
+
         protected override Expression VisitNot(QueryTranslatorContext context, NotExpression expression)
         {
             return Expression.Not(expression.Expression.Accept(this, context));

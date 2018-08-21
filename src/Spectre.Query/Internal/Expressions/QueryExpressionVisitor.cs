@@ -52,6 +52,12 @@ namespace Spectre.Query.Internal.Expressions
             return null;
         }
 
+        object IQueryExpressionVisitor<TContext, object>.VisitLike(TContext context, LikeExpression expression)
+        {
+            VisitLike(context, expression);
+            return null;
+        }
+
         protected abstract void VisitAnd(TContext context, AndExpression expression);
         protected abstract void VisitConstant(TContext context, ConstantExpression expression);
         protected abstract void VisitNot(TContext context, NotExpression expression);
@@ -60,6 +66,7 @@ namespace Spectre.Query.Internal.Expressions
         protected abstract void VisitScope(TContext context, ScopeExpression expression);
         protected abstract void VisitProperty(TContext context, PropertyExpression expression);
         protected abstract void VisitConversion(TContext context, ConvertExpression expression);
+        protected abstract void VisitLike(TContext context, LikeExpression expression);
     }
 
     internal abstract class QueryExpressionVisitor<TContext, TResult> : IQueryExpressionVisitor<TContext, TResult>
@@ -104,6 +111,11 @@ namespace Spectre.Query.Internal.Expressions
             return VisitConversion(context, expression);
         }
 
+        TResult IQueryExpressionVisitor<TContext, TResult>.VisitLike(TContext context, LikeExpression expression)
+        {
+            return VisitLike(context, expression);
+        }
+
         protected abstract TResult VisitAnd(TContext context, AndExpression expression);
         protected abstract TResult VisitConstant(TContext context, ConstantExpression expression);
         protected abstract TResult VisitNot(TContext context, NotExpression expression);
@@ -112,5 +124,6 @@ namespace Spectre.Query.Internal.Expressions
         protected abstract TResult VisitScope(TContext context, ScopeExpression expression);
         protected abstract TResult VisitProperty(TContext context, PropertyExpression expression);
         protected abstract TResult VisitConversion(TContext context, ConvertExpression expression);
+        protected abstract TResult VisitLike(TContext context, LikeExpression expression);
     }
 }

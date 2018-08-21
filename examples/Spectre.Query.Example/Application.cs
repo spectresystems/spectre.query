@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Spectre.Query.Example.Data;
 
 namespace Spectre.Query.Example
@@ -37,10 +38,13 @@ namespace Spectre.Query.Example
                     }
 
                     // Query the EF context for movies.
-                    var movies = _provider.Query<Movie>(_context, query).ToList();
+                    var movies = _provider
+                        .Query<Movie>(_context, query)
+                        .Include(m => m.Genre)
+                        .ToList();
 
                     // Output the result.
-                    OutputMovies(movies);
+                    ListResults(movies);
                 }
                 catch (Exception ex)
                 {
@@ -60,17 +64,21 @@ namespace Spectre.Query.Example
             return Console.ReadLine();
         }
 
-        private void OutputMovies(List<Movie> movies)
+        private void ListResults(List<Movie> movies)
         {
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("{0,-40}  {1,4}  {2,5}  {3, 5}", "Title", "Year", "Score", "Seen?");
-            Console.WriteLine(new string('=', 60));
+            Console.WriteLine("{0,-40}  {1,4}  {2,5}  {3, -10}  {4, 5}", "Title", "Year", "Score", "Genre", "Seen?");
+            Console.WriteLine(new string('=', 72));
             Console.ResetColor();
             foreach (var movie in movies)
             {
-                Console.WriteLine("{0,-40}  {1,4}  {2,5}  {3, 5}",
-                    movie.Name, movie.ReleasedAt, movie.Rating, movie.Seen ? "Yes" : "No");
+                Console.WriteLine("{0,-40}  {1,4}  {2,5}  {3, -10}  {4, 5}",
+                    movie.Name,
+                    movie.ReleasedAt,
+                    movie.Rating,
+                    movie.Genre.Name,
+                    movie.Seen ? "Yes" : "No");
             }
             Console.WriteLine();
         }
