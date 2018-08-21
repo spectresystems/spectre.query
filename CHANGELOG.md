@@ -1,4 +1,11 @@
+### New in 0.7.0 (Released 2018/08/21)
+
+- [__#4__](https://github.com/spectresystems/spectre.query/issues/4) Add support for LIKE operator
+- [__#16__](https://github.com/spectresystems/spectre.query/issues/16) Add EBNF grammar to repo
+
 ### New in 0.6.0 (Released 2018/08/19)
+
+- [__#13__](https://github.com/spectresystems/spectre.query/issues/13) Add support for navigational properties
 
 ### New in 0.5.0 (Released 2018/08/19)
 

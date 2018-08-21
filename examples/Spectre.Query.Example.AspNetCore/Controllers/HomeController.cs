@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Spectre.Query.AspNetCore.Example.Data;
 using Spectre.Query.AspNetCore.Example.Models;
 
@@ -20,6 +21,7 @@ namespace Spectre.Query.AspNetCore.Example.Controllers
         public IActionResult Index(string query = null)
         {
             var movies = _provider.Query<Movie>(_context, query)
+                .Include(m => m.Genre)
                 .OrderByDescending(movie => movie.Rating)
                 .ToList();
 

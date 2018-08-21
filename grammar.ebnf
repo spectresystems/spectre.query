@@ -1,0 +1,21 @@
+expression ::= or
+or ::= and ( 'OR' and )?
+and ::= predicate ( 'AND' predicate )?
+predicate ::= ( '!' predicate ) | relation
+relation ::= literal ( operator literal )?
+literal ::= constant | scope | property
+scope ::= '(' expression ')'
+
+string_literal ::= ( "'" string "'" )
+constant       ::= integer | float | string_literal | null | boolean
+null           ::= 'NULL'
+boolean        ::= 'TRUE' | 'FALSE'
+property       ::= string
+operator       ::= '=' | '==' | '!=' | '<>' | '>' | '>=' | '<' | '<=' | 'LIKE' | '~'
+
+integer              ::= '0' | ( '-' ) natural_number
+float                ::= integer ( '.' fraction )
+fraction             ::= digit+
+digit                ::= '0' | digit_excluding_zero
+digit_excluding_zero ::= '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+natural_number       ::= digit_excluding_zero ( digit )*

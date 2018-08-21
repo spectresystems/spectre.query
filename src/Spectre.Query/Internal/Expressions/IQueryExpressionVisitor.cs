@@ -12,5 +12,6 @@ namespace Spectre.Query.Internal.Expressions
         TResult VisitScope(TContext context, ScopeExpression expression);
         TResult VisitProperty(TContext context, PropertyExpression expression);
         TResult VisitConversion(TContext context, ConvertExpression expression);
+        TResult VisitLike(TContext context, LikeExpression expression);
     }
 }

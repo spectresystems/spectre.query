@@ -5,7 +5,7 @@
 Spectre.Query is a library for doing simplified (safe) querying in Entity Framework Core. Perfect when you want to let end users or APIs search with a SQL-esque language without actually letting them execute any SQL directly (which you never should).
 
 ```
-ID > 0 AND Year < 2007 AND Comment != null AND !Seen
+ID > 0 AND Year < 2007 AND Comment != null AND (!Seen OR Comment LIKE '%Awesome%')
 ```
 
 This project is currently under active development and might not be ready for production.
