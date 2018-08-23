@@ -28,7 +28,7 @@ namespace Spectre.Query.Internal.Expressions
             return null;
         }
 
-        object IQueryExpressionVisitor<TContext, object>.VisitRelational(TContext context, RelationalExpression expression)
+        object IQueryExpressionVisitor<TContext, object>.VisitRelation(TContext context, RelationalExpression expression)
         {
             VisitRelational(context, expression);
             return null;
@@ -58,6 +58,12 @@ namespace Spectre.Query.Internal.Expressions
             return null;
         }
 
+        object IQueryExpressionVisitor<TContext, object>.VisitCollection(TContext context, CollectionExpression expression)
+        {
+            VisitCollection(context, expression);
+            return null;
+        }
+
         protected abstract void VisitAnd(TContext context, AndExpression expression);
         protected abstract void VisitConstant(TContext context, ConstantExpression expression);
         protected abstract void VisitNot(TContext context, NotExpression expression);
@@ -67,6 +73,7 @@ namespace Spectre.Query.Internal.Expressions
         protected abstract void VisitProperty(TContext context, PropertyExpression expression);
         protected abstract void VisitConversion(TContext context, ConvertExpression expression);
         protected abstract void VisitLike(TContext context, LikeExpression expression);
+        protected abstract void VisitCollection(TContext context, CollectionExpression expression);
     }
 
     internal abstract class QueryExpressionVisitor<TContext, TResult> : IQueryExpressionVisitor<TContext, TResult>
@@ -91,9 +98,9 @@ namespace Spectre.Query.Internal.Expressions
             return VisitOr(context, expression);
         }
 
-        TResult IQueryExpressionVisitor<TContext, TResult>.VisitRelational(TContext context, RelationalExpression expression)
+        TResult IQueryExpressionVisitor<TContext, TResult>.VisitRelation(TContext context, RelationalExpression expression)
         {
-            return VisitRelational(context, expression);
+            return VisitRelation(context, expression);
         }
 
         TResult IQueryExpressionVisitor<TContext, TResult>.VisitScope(TContext context, ScopeExpression expression)
@@ -116,14 +123,20 @@ namespace Spectre.Query.Internal.Expressions
             return VisitLike(context, expression);
         }
 
+        TResult IQueryExpressionVisitor<TContext, TResult>.VisitCollection(TContext context, CollectionExpression expression)
+        {
+            return VisitCollection(context, expression);
+        }
+
         protected abstract TResult VisitAnd(TContext context, AndExpression expression);
         protected abstract TResult VisitConstant(TContext context, ConstantExpression expression);
         protected abstract TResult VisitNot(TContext context, NotExpression expression);
         protected abstract TResult VisitOr(TContext context, OrExpression expression);
-        protected abstract TResult VisitRelational(TContext context, RelationalExpression expression);
+        protected abstract TResult VisitRelation(TContext context, RelationalExpression expression);
         protected abstract TResult VisitScope(TContext context, ScopeExpression expression);
         protected abstract TResult VisitProperty(TContext context, PropertyExpression expression);
         protected abstract TResult VisitConversion(TContext context, ConvertExpression expression);
         protected abstract TResult VisitLike(TContext context, LikeExpression expression);
+        protected abstract TResult VisitCollection(TContext context, CollectionExpression expression);
     }
 }

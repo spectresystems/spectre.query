@@ -1,4 +1,6 @@
-﻿namespace Spectre.Query.AspNetCore.Example.Data
+﻿using System.Collections.Generic;
+
+namespace Spectre.Query.AspNetCore.Example.Data
 {
     public sealed class Movie
     {
@@ -7,6 +9,7 @@
         public int ReleasedAt { get; set; }
         public int Rating { get; set; }
         public bool Seen { get; set; }
-        public Genre Genre { get; set; }
+
+        public List<MovieGenre> Genres { get; set; }
     }
 }

@@ -12,7 +12,7 @@
 
         public override TResult Accept<TContext, TResult>(IQueryExpressionVisitor<TContext, TResult> visitor, TContext context)
         {
-            return visitor.VisitRelational(context, this);
+            return visitor.VisitRelation(context, this);
         }
     }
 }

@@ -6,23 +6,23 @@ namespace Spectre.Query.Internal.Configuration
 {
     internal sealed class EntityConfiguration
     {
-        private readonly List<QueryProperty> _mappings;
+        private readonly List<IQueryMapping> _mappings;
 
         public Type Type { get; }
         public bool IsQueryType { get; }
-        public IReadOnlyList<QueryProperty> Mappings => _mappings;
+        public IReadOnlyList<IQueryMapping> Mappings => _mappings;
 
         public EntityConfiguration(IEntityType entityType, Type type)
         {
-            _mappings = new List<QueryProperty>();
+            _mappings = new List<IQueryMapping>();
 
             Type = type;
             IsQueryType = entityType.IsQueryType;
         }
 
-        public void AddProperty(QueryProperty property)
+        public void AddProperty(IQueryMapping property)
         {
-            if (GetProperty(property.Alias) != null)
+            if (GetMapping(property.Alias) != null)
             {
                 throw new InvalidOperationException($"The property '{property.Alias}' have been defined twice.");
             }
@@ -30,7 +30,7 @@ namespace Spectre.Query.Internal.Configuration
             _mappings.Add(property);
         }
 
-        public QueryProperty GetProperty(string name)
+        public IQueryMapping GetMapping(string name)
         {
             return _mappings.Find(m => m.Alias.Equals(name, StringComparison.OrdinalIgnoreCase));
         }

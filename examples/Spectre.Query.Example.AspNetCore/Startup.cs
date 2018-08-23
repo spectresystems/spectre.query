@@ -36,18 +36,7 @@ namespace Spectre.Query.AspNetCore.Example
                 options.Configure<Movie>(movie =>
                 {
                     movie.Map("Id", e => e.MovieId);
-                    movie.Map("Genre", e => e.Genre.Name);
-                    movie.Map("Title", e => e.Name);
-                    movie.Map("Year", e => e.ReleasedAt);
-                    movie.Map("Score", e => e.Rating);
-                    movie.Map("Seen", e => e.Seen);
-                });
-
-                // Configure a query type projection.
-                options.Configure<MovieProjection>(movie =>
-                {
-                    movie.Map("Id", e => e.MovieId);
-                    movie.Map("Genre", e => e.Genre);
+                    movie.Map("Genre", e => e.Genres, g => g.Genre.Name);
                     movie.Map("Title", e => e.Name);
                     movie.Map("Year", e => e.ReleasedAt);
                     movie.Map("Score", e => e.Rating);
