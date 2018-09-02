@@ -14,12 +14,6 @@
     <ProjectReference Include="..\..\src\Spectre.Query\Spectre.Query.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="Views\Home\Projection.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-  </ItemGroup>
-
   <!-- Static analysis -->
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\..\src\Spectre.ruleset</CodeAnalysisRuleSet>

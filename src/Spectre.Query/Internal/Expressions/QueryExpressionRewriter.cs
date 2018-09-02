@@ -22,6 +22,11 @@ namespace Spectre.Query.Internal.Expressions
             return expression;
         }
 
+        protected override QueryExpression VisitCollection(TContext context, CollectionExpression expression)
+        {
+            return expression;
+        }
+
         protected override QueryExpression VisitLike(TContext context, LikeExpression expression)
         {
             return VisitBinary(context, expression, (left, right) =>
@@ -40,7 +45,7 @@ namespace Spectre.Query.Internal.Expressions
                 new OrExpression(left, right));
         }
 
-        protected override QueryExpression VisitRelational(TContext context, RelationalExpression expression)
+        protected override QueryExpression VisitRelation(TContext context, RelationalExpression expression)
         {
             return VisitBinary(context, expression, (left, right) =>
                 new RelationalExpression(left, right, expression.Operator));

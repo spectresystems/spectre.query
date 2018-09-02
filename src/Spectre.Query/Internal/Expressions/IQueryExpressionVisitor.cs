@@ -8,10 +8,11 @@ namespace Spectre.Query.Internal.Expressions
         TResult VisitConstant(TContext context, ConstantExpression expression);
         TResult VisitNot(TContext context, NotExpression expression);
         TResult VisitOr(TContext context, OrExpression expression);
-        TResult VisitRelational(TContext context, RelationalExpression expression);
+        TResult VisitRelation(TContext context, RelationalExpression expression);
         TResult VisitScope(TContext context, ScopeExpression expression);
         TResult VisitProperty(TContext context, PropertyExpression expression);
         TResult VisitConversion(TContext context, ConvertExpression expression);
         TResult VisitLike(TContext context, LikeExpression expression);
+        TResult VisitCollection(TContext context, CollectionExpression expression);
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Spectre.Query.Internal.Expressions.Ast
+﻿namespace Spectre.Query.Internal.Expressions.Ast
 {
     internal sealed class LikeExpression : BinaryExpression
     {

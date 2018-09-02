@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Spectre.Query.Tests.Data
 {
@@ -6,5 +7,7 @@ namespace Spectre.Query.Tests.Data
     {
         [Key]
         public int DocumentId { get; set; }
+
+        public List<DocumentTag> Tags { get; set; }
     }
 }

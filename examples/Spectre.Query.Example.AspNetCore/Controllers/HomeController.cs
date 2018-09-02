@@ -21,7 +21,7 @@ namespace Spectre.Query.AspNetCore.Example.Controllers
         public IActionResult Index(string query = null)
         {
             var movies = _provider.Query<Movie>(_context, query)
-                .Include(m => m.Genre)
+                .Include(m => m.Genres).ThenInclude(g => g.Genre)
                 .OrderByDescending(movie => movie.Rating)
                 .ToList();
 
@@ -36,26 +36,6 @@ namespace Spectre.Query.AspNetCore.Example.Controllers
         public IActionResult Search(SearchResultModel<Movie> model)
         {
             return RedirectToAction(nameof(Index), new { query = model.Query });
-        }
-
-        [HttpGet]
-        public IActionResult Projection(string query = null)
-        {
-            var movies = _provider.Query<MovieProjection>(_context, query)
-                .OrderByDescending(x => x.Rating)
-                .ToList();
-
-            return View(new SearchResultModel<MovieProjection>
-            {
-                Movies = movies,
-                Query = query
-            });
-        }
-
-        [HttpPost]
-        public IActionResult SearchProjection(SearchResultModel<Movie> model)
-        {
-            return RedirectToAction(nameof(Projection), new { query = model.Query });
         }
     }
 }

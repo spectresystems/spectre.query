@@ -35,7 +35,7 @@
                     <td>@movie.Name</td>
                     <td>@movie.ReleasedAt</td>
                     <td>@movie.Rating</td>
-                    <td>@movie.Genre.Name</td>
+                    <td>@string.Join(", ", movie.Genres.Select(x => x.Genre.Name))</td>
                     <td>@(movie.Seen ? "Yes" : "No")</td>
                 </tr>
             }
