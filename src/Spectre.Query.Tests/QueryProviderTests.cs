@@ -46,10 +46,7 @@ namespace Spectre.Query.Tests
                         options.Configure<Document>(document =>
                         {
                             document.Map("Foo", e => e.DocumentId);
-                            document.Map<Invoice>(invoice =>
-                            {
-                                invoice.Map("Foo", e => e.Cancelled);
-                            });
+                            document.Map<Invoice>(invoice => { invoice.Map("Foo", e => e.Cancelled); });
                         });
                     });
                 });
@@ -66,16 +63,14 @@ namespace Spectre.Query.Tests
                 // Given, When
                 var result = await Record.ExceptionAsync(async () =>
                 {
-                    await TestQueryRunner.Execute("Foo = 'Contoso'", DefaultSeeder, options =>
-                    {
-                        options.Configure<Document>(document =>
+                    await TestQueryRunner.Execute("Foo = 'Contoso'", DefaultSeeder,
+                        options =>
                         {
-                            document.Map<Invoice>(invoice =>
+                            options.Configure<Document>(document =>
                             {
-                                invoice.Map("Foo", e => e.Company);
+                                document.Map<Invoice>(invoice => { invoice.Map("Foo", e => e.Company); });
                             });
                         });
-                    });
                 });
 
                 // Then
@@ -90,16 +85,14 @@ namespace Spectre.Query.Tests
                 // Given, When
                 var result = await Record.ExceptionAsync(async () =>
                 {
-                    await TestQueryRunner.Execute("Foo = 'Contoso'", DefaultSeeder, options =>
-                    {
-                        options.Configure<Document>(document =>
+                    await TestQueryRunner.Execute("Foo = 'Contoso'", DefaultSeeder,
+                        options =>
                         {
-                            document.Map<Invoice>(invoice =>
+                            options.Configure<Document>(document =>
                             {
-                                invoice.Map("Foo", e => e.Dummy);
+                                document.Map<Invoice>(invoice => { invoice.Map("Foo", e => e.Dummy); });
                             });
                         });
-                    });
                 });
 
                 // Then
@@ -274,6 +267,19 @@ namespace Spectre.Query.Tests
                 result
                     .ShouldBeOfType<InvalidOperationException>()
                     .And().Message.ShouldBe("Invalid number format.");
+            }
+
+            [Theory]
+            [Issue("https://github.com/spectresystems/spectre.query/issues/21")]
+            [InlineData("(Discount = 20)", new int[] { 4 })]
+            [InlineData("(Discount = 20.0)", new int[] { 4 })]
+            public async Task Should_Parse_Number_Followed_By_Parenthesis(string query, int[] expected)
+            {
+                // Given, When
+                var result = await TestQueryRunner.Execute(query, DefaultSeeder);
+
+                // Then
+                result.ShouldContainEntities(expected);
             }
         }
     }
