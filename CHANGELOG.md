@@ -1,3 +1,8 @@
+### New in 0.8.0 (Released 2018/09/11)
+
+- [__#18__](https://github.com/spectresystems/spectre.query/issues/18) Support querying of collections
+- [__#21__](https://github.com/spectresystems/spectre.query/issues/21) Can't parse integer/decimal followed by a closing parenthesis
+
 ### New in 0.7.0 (Released 2018/08/21)
 
 - [__#4__](https://github.com/spectresystems/spectre.query/issues/4) Add support for LIKE operator
