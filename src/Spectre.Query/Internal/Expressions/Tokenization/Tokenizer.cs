@@ -135,10 +135,14 @@ namespace Spectre.Query.Internal.Expressions.Tokenization
                 accumulator.Append(ReadInteger());
             }
 
-            // More non-whitespace tokens?
-            if (_buffer.CanRead && !char.IsWhiteSpace(_buffer.Peek()))
+            if (_buffer.CanRead)
             {
-                throw new InvalidOperationException("Invalid number format.");
+                // More non-whitespace tokens?
+                var next = _buffer.Peek();
+                if (!char.IsWhiteSpace(next) && next != ')')
+                {
+                    throw new InvalidOperationException("Invalid number format.");
+                }
             }
 
             var value = accumulator.ToString();
