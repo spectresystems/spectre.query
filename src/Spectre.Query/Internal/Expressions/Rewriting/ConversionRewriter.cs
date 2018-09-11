@@ -16,7 +16,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
 
         public sealed class Visitor : QueryExpressionRewriter<object>
         {
-            protected override QueryExpression VisitRelational(object context, RelationalExpression expression)
+            protected override QueryExpression VisitRelation(object context, RelationalExpression expression)
             {
                 // Left hand side is a nullable property?
                 if (expression.Left is PropertyExpression property)
@@ -31,7 +31,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                     }
                 }
 
-                return base.VisitRelational(context, expression);
+                return base.VisitRelation(context, expression);
             }
 
             private QueryExpression RewriteNullableProperty(object context, RelationalExpression expression, PropertyExpression property)
@@ -39,7 +39,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                 // Don't care if the right side is a null constant.
                 if (expression.Right is ConstantExpression constant && constant == null)
                 {
-                    return base.VisitRelational(context, expression);
+                    return base.VisitRelation(context, expression);
                 }
 
                 // Try converting the right side of the expression.
@@ -73,7 +73,7 @@ namespace Spectre.Query.Internal.Expressions.Rewriting
                         expression.Operator);
                 }
 
-                return base.VisitRelational(context, expression);
+                return base.VisitRelation(context, expression);
             }
         }
     }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +8,7 @@ namespace Spectre.Query.Tests.Infrastructure
 {
     public static class TestQueryRunner
     {
-        public static async Task<TestQueryRunnerResult> Execute(string query, Func<List<Document>> seeder, Action<IQueryConfigurator<DataContext>> options = null)
+        public static async Task<TestQueryRunnerResult> Execute(string query, Action<DataContext> seeder, Action<IQueryConfigurator<DataContext>> options = null)
         {
             seeder = seeder ?? throw new InvalidOperationException(nameof(seeder));
             options = options ?? ConfigureDefaultQueryProvider;
@@ -25,14 +23,13 @@ namespace Spectre.Query.Tests.Infrastructure
                     context.Database.EnsureCreated();
 
                     // Seed
-                    await context.Documents.AddRangeAsync(seeder());
-                    await context.SaveChangesAsync();
+                    seeder(context);
 
                     // Initialize provider.
                     var provider = QueryProviderBuilder.Build(context, options);
 
                     // Execute query.
-                    var result = provider.Query<Document>(context, query).ToList();
+                    var result = await provider.Query<Document>(context, query).ToListAsync();
                     return new TestQueryRunnerResult
                     {
                         Query = query,
@@ -42,11 +39,12 @@ namespace Spectre.Query.Tests.Infrastructure
             }
         }
 
-        private static void ConfigureDefaultQueryProvider(IQueryConfigurator<DataContext> options)
+        public static void ConfigureDefaultQueryProvider(IQueryConfigurator<DataContext> options)
         {
             options.Configure<Document>(document =>
             {
                 document.Map("Id", e => e.DocumentId);
+                document.Map("Tag", e => e.Tags, t => t.Tag.Name);
                 document.Map<Invoice>(invoice =>
                 {
                     invoice.Map("Company", e => e.Company.Name);

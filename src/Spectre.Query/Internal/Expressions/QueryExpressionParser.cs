@@ -167,15 +167,13 @@ namespace Spectre.Query.Internal.Expressions
         {
             var name = tokenizer.Consume(TokenType.Word).Value;
 
-            var property = configuration.GetProperty(name);
-            if (property == null)
+            var mapping = configuration.GetMapping(name);
+            if (mapping == null)
             {
                 throw new InvalidOperationException("Could not find property.");
             }
 
-            return new PropertyExpression(
-                property.EntityType,
-                property.Properties);
+            return mapping.CreateExpression();
         }
 
         private static QueryExpression ParseConstant(Tokenizer tokenizer, Func<string, object> converter)

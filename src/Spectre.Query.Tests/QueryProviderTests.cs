@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shouldly;
 using Spectre.Query.Tests.Data;
@@ -10,24 +9,7 @@ namespace Spectre.Query.Tests
 {
     public static class QueryProviderTests
     {
-        public static List<Document> DefaultSeeder()
-        {
-            var companies = new[]
-            {
-                new Company { CompanyId = 1, Name = "ACME Inc." },
-                new Company { CompanyId = 2, Name = "Contoso" }
-            };
-
-            return new List<Document>
-            {
-                new Invoice { DocumentId = 1, Amount = -1.5M, Paid = true, Comment = "Ooz", Cancelled = true, Discount = 5, Company = companies[1] },
-                new Invoice { DocumentId = 2, Amount = 1.5M, Paid = true, Comment = "Fooz", Cancelled = true, Discount = 10, Company = companies[1] },
-                new Invoice { DocumentId = 3, Amount = 2, Paid = true, Comment = "Foo", Discount = 15, Company = companies[0] },
-                new Invoice { DocumentId = 4, Amount = 3.5M, Paid = false, Comment = "Bar", Cancelled = false, Discount = 20, Company = companies[1] },
-                new Invoice { DocumentId = 5, Amount = 4.5M, Paid = true, Cancelled = true, Discount = null, Company = companies[1] },
-                new Document { DocumentId = 6 }
-            };
-        }
+        public static Action<DataContext> DefaultSeeder => QueryProviderTestSeeder.DefaultSeeder;
 
         public sealed class Configuration
         {
@@ -138,6 +120,25 @@ namespace Spectre.Query.Tests
             [InlineData("Comment ~ '%ooz'", new[] { 1, 2 })]
             [InlineData("Comment LIKE '%o%'", new[] { 1, 2, 3 })]
             [InlineData("Comment ~ '%o%'", new[] { 1, 2, 3 })]
+            public async Task Integer(string query, int[] expected)
+            {
+                // Given, When
+                var result = await TestQueryRunner.Execute(query, DefaultSeeder);
+
+                // Then
+                result.ShouldContainEntities(expected);
+            }
+        }
+
+        public sealed class Collections
+        {
+            [Theory]
+            [InlineData("Tag == 'Bank'", new[] { 1, 2, 3 })]
+            [InlineData("Tag LIKE 'Ba%'", new[] { 1, 2, 3 })]
+            [InlineData("Tag == 'Bank' AND Tag = 'Insurance'", new[] { 2, 3 })]
+            [InlineData("Tag == 'Tax'", new[] { 3, 4, 5 })]
+            [InlineData("Tag LIKE 'Ta%'", new[] { 3, 4, 5 })]
+            [InlineData("Tag == 'Tax' AND Tag == 'Insurance' AND Tag != 'Bank'", new[] { 4 })]
             public async Task Integer(string query, int[] expected)
             {
                 // Given, When

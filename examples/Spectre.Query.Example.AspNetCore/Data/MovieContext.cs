@@ -7,8 +7,6 @@ namespace Spectre.Query.AspNetCore.Example.Data
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Genre> Genres { get; set; }
 
-        public DbQuery<MovieProjection> Projections { get; set; }
-
         public MovieContext(DbContextOptions<MovieContext> options)
             : base(options)
         {
@@ -16,9 +14,8 @@ namespace Spectre.Query.AspNetCore.Example.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Query<MovieProjection>()
-                .ToView("View_Movies")
-                .Property(v => v.Genre).HasColumnName("GenreName");
+            modelBuilder.Entity<MovieGenre>()
+                .HasKey(t => new { t.MovieId, t.GenreId });
         }
     }
 }

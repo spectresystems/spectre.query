@@ -78,6 +78,37 @@ namespace Spectre.Query.Internal.Configuration
                 new QueryProperty(name, _entityType.ClrType, properties));
         }
 
+        public void Map<TItem, TResult>(string name, Expression<Func<TEntity, ICollection<TItem>>> expression, Expression<Func<TItem, TResult>> getter)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (!(expression.Body is MemberExpression expressionMember))
+            {
+                throw new InvalidOperationException("Expected member expression");
+            }
+            if (!(getter.Body is MemberExpression getterMember))
+            {
+                throw new InvalidOperationException("Expected member expression");
+            }
+
+            var collectionProperties = GetPropertyInfo(expressionMember);
+            if (collectionProperties.Count == 0)
+            {
+                throw new InvalidOperationException("Could not resolve collection property from expression.");
+            }
+
+            var getterProperties = GetPropertyInfo(getterMember);
+            if (getterProperties.Count == 0)
+            {
+                throw new InvalidOperationException("Could not resolve property from collection expression.");
+            }
+
+            Configuration.AddProperty(
+                new QueryCollection(name, collectionProperties, getterProperties));
+        }
+
         private static IReadOnlyList<PropertyInfo> GetPropertyInfo(MemberExpression member)
         {
             var parts = new Stack<PropertyInfo>();
