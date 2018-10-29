@@ -4,7 +4,7 @@ init:
 
 # Build script
 build_script:
-  - ps: .\build.ps1 --target="AppVeyor" --verbosity=verbose
+  - ps: .\build.ps1 --target="BuildServer" --verbosity=verbose
 
 # Tests
 test: off
